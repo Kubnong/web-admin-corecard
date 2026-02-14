@@ -120,13 +120,14 @@
           <tbody>
             <tr
               v-for="card in cards"
-              :key="card.card_id"
-              class="border-t"
+              :key="card.cardId"
+              @click="goToDetail(card.cardId)"
+              class="border-t cursor-pointer hover:bg-gray-50"
             >
               <td class="px-6 py-4">{{ card.last_digits }}</td>
               <td class="px-6 py-4">{{ card.holder_id }}</td>
               <td class="px-6 py-4 capitalize">{{ card.type_debit_id }}</td>
-              <td class="px-6 py-4">{{ card.virtual ? 'vitual' : 'physical' }}</td>
+              <td class="px-6 py-4">{{ card.virtual ? 'Virtual' : 'Physical' }}</td>
 
               <td class="px-6 py-4">
                 <div
@@ -151,9 +152,12 @@
 <script setup lang="ts">
 import { getCards } from "@/services/webAdminService"
 import { onMounted, ref } from 'vue';
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 interface Card {
-  card_id: string,
+  cardId: string,
   holder_id: string,
   type_debit_id: string,
   last_digits: string,
@@ -175,6 +179,13 @@ const fetchCardsData = async () => {
     } catch (error) { 
         console.log(error)
     }
+}
+
+const goToDetail = (card_id: string) => {
+  router.push({
+    path: '/debit-detail',
+    state: { card_id : card_id }
+  });
 }
 
 onMounted(() => {

@@ -76,7 +76,7 @@
                     <span>••••</span>
                     <span>••••</span>
                     <div class="flex items-center gap-2">
-                        <span>9876</span>
+                        <span>{{ cardData?.last_digits }}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 opacity-70 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="flex flex-col items-end">
                     <div class="text-[10px] opacity-70 uppercase">Valid Thru</div>
-                    <div class="text-sm font-bold mb-2">12/26</div>
+                    <div class="text-sm font-bold mb-2">{{ cardData?.expiry }}</div>
                     <div class="flex relative">
                         <div class="w-8 h-8 bg-red-500 rounded-full opacity-90"></div>
                         <div class="w-8 h-8 bg-yellow-500 rounded-full opacity-90 -ml-4"></div>
@@ -105,22 +105,22 @@
                 
                 <div>
                     <h3 class="font-bold text-gray-900 mb-1">Card Type</h3>
-                    <p class="text-gray-500 text-sm">Virtual</p>
+                    <p class="text-gray-500 text-sm">{{ cardData?.virtual ? 'Virtual' : 'Physical' }}</p>
                 </div>
 
                 <div>
                     <h3 class="font-bold text-gray-900 mb-1">Card Created</h3>
-                    <p class="text-gray-500 text-sm">21 Oct 2024</p>
+                    <p class="text-gray-500 text-sm">{{ cardData?.created_at }}</p>
                 </div>
 
                 <div>
                     <h3 class="font-bold text-gray-900 mb-1">Expiry</h3>
-                    <p class="text-gray-500 text-sm">10/29</p>
+                    <p class="text-gray-500 text-sm">{{ cardData?.expiry }}</p>
                 </div>
 
                 <div>
                     <h3 class="font-bold text-gray-900 mb-1">Spending Limit</h3>
-                    <p class="text-gray-500 text-sm">20000 THB</p>
+                    <p class="text-gray-500 text-sm">{{ cardData?.current_spending_limit }}</p>
                 </div>
 
                 <div>
@@ -154,9 +154,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr v-for="(log, index) in historyLogs" :key="index" class="hover:bg-gray-50">
+                    <tr v-for="log in logData" :key="log.log_id" class="hover:bg-gray-50">
                         <td class="px-6 py-4 text-sm text-gray-600 font-medium">
-                            {{ log.date }}
+                            {{ log.timestamp}}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-800">
                             {{ log.action }}
@@ -172,22 +172,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { getDetailCard, getHistoryLogs } from '@/services/webAdminService';
 
-// Mock Data for History
-const historyLogs = ref([
-    { date: '21 Oct 2024, 08:46', action: 'create virtual card' },
-    { date: '22 Oct 2024, 09:52', action: 'change spending limit 20000 → 50000' },
-    { date: '10 Nov 2024, 15.32', action: 'Freeze a card' },
-    { date: '11 Nov 2024, 17.43', action: 'Unfreeze a card' },
-]);
-</script>
+const route = useRoute();
+const cardData = ref<CardDetail>();
+const logData = ref<LogDetail[]>([]);
 
-<style>
-/* Optional: Import fonts if not using Tailwind CDN default font stack */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-body {
-    font-family: 'Inter', sans-serif;
+interface CardDetail {
+  card_id: string;
+  holder_id: string;
+  type_debit_id: string;
+  last_digits: string;
+  encrypted_pan: string;
+  encrypted_cvv: string;
+  virtual: boolean;
+  current_spending_limit: number;
+  created_at: string;
+  expiry: string;
+  status: string;
+  request_physical: boolean;
 }
-</style>
+
+interface LogDetail {
+  log_id: string;
+  action: string;
+  timestamp: Date;
+  card_id: string;
+}
+
+const fetchCardDetail = async () => {
+  const card_id = history.state.card_id as string;
+  console.log("fetch data from id : ",card_id)
+
+  try {
+    const response = await getDetailCard({ card_id : card_id });
+    cardData.value = response.data;
+  } catch (error: any) {
+    console.error('Error fetching card detail:', error);
+  }
+};
+
+const fetchHistoryLog = async () => {
+    const card_id = history.state.card_id as string;
+    console.log("fetch data from id : ",card_id)
+    try {
+        const response = await getHistoryLogs({ card_id : card_id })
+        logData.value = response.data;
+    } catch(error) {
+        console.log(error)
+        console.error('Error fetching log detail:', error);
+    }
+}
+
+onMounted(() => {
+  fetchCardDetail()
+  fetchHistoryLog()
+})
+
+</script>

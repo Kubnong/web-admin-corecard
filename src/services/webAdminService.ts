@@ -24,7 +24,7 @@ interface MfaVerifyRequest {
 }
 
 interface cardIdRequest {
-    cardId : string
+    card_id : string;
 }
 
 export const authorize = (payload: AuthorizeRequest) => {
@@ -55,3 +55,6 @@ export const getTypeDebits = () => {
     return api.get('/cards/type-debits')
 }
 
+export const getHistoryLogs = (payload: cardIdRequest) => {
+    return api.post('/web/history-logs', payload)
+}
