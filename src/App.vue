@@ -1,10 +1,9 @@
 <template>
     <div class="min-h-screen bg-slate-50 text-slate-800">
-        <header class="bg-white border-b">
-            <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+        <header class="bg-white border-b sticky top-0 z-50">
+            <div class="w-full max-w-[1920px] mx-auto flex items-center justify-between p-4">
                 <h1 class="text-lg font-semibold">Web Admin Corecard</h1>
                 <nav class="flex items-center gap-3">
-                    <!-- If authenticated -->
                     <div v-if="userEmail" class="flex items-center gap-4">
                         <div class="text-right">
                             <p class="text-sm font-semibold text-gray-900">{{ userEmail }}</p>
@@ -19,13 +18,12 @@
                             Logout
                         </button>
                     </div>
-                    <!-- If not authenticated -->
                     <router-link v-else to="/login" class="px-3 py-2 rounded-md bg-indigo-600 text-white text-sm">Login</router-link>
                 </nav>
             </div>
         </header>
 
-        <main class="max-w-6xl mx-auto p-6">
+        <main class="w-full max-w-[1920px] mx-auto">
             <router-view />
         </main>
     </div>
