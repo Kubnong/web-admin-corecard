@@ -6,7 +6,8 @@ const routes = [
   { path: '/setup2fa', component: () => import('../views/Setup2fa.vue')},
   { path: '/debit-manage', component: () => import('../views/DebitManage.vue')},
   { path: '/debit-type-manage', component: () => import('../views/DebitTypeManage.vue')},
-  { path: '/debit-detail', component: () => import('../views/DebitDetail.vue')}
+  { path: '/debit-detail', component: () => import('../views/DebitDetail.vue')},
+  { path: '/add-debit-type', component: () => import('../views/AddDebitType.vue')},
 ]
 
 const router = createRouter({

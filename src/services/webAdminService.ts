@@ -27,6 +27,20 @@ interface cardIdRequest {
     card_id : string;
 }
 
+interface AddDebitTypeRequest {
+    type_debit_image: string;
+    type_debit_name: string;
+    type_debit_description: string;
+    can_physical: boolean;
+    entrance_free: number;
+    annual_fee: number;
+    min_limit: number;
+    default_limit: number;
+    max_limit: number;
+    expiry_year: number;
+    // images: string[]; // base64 strings (without data:image prefix)
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -57,4 +71,8 @@ export const getTypeDebits = () => {
 
 export const getHistoryLogs = (payload: cardIdRequest) => {
     return api.post('/web/history-logs', payload)
+}
+
+export const addTypeDebit = (payload: AddDebitTypeRequest) => {
+    return api.post('/cards/type-debits', payload)
 }
