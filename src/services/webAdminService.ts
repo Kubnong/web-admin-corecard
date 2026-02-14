@@ -41,6 +41,12 @@ interface AddDebitTypeRequest {
     // images: string[]; // base64 strings (without data:image prefix)
 }
 
+interface ChangePasswordRequest {
+    email: string;
+    old_password: string;
+    new_password: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -75,4 +81,8 @@ export const getHistoryLogs = (payload: cardIdRequest) => {
 
 export const addTypeDebit = (payload: AddDebitTypeRequest) => {
     return api.post('/cards/type-debits', payload)
+}
+
+export const changePassword = (payload: ChangePasswordRequest) => {
+    return api.put('/web/change-password', payload)
 }

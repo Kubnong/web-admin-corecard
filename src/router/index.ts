@@ -8,6 +8,7 @@ const routes = [
   { path: '/debit-type-manage', component: () => import('../views/DebitTypeManage.vue')},
   { path: '/debit-detail', component: () => import('../views/DebitDetail.vue')},
   { path: '/add-debit-type', component: () => import('../views/AddDebitType.vue')},
+  { path: '/setting', component: () => import('../views/Setting.vue')}
 ]
 
 const router = createRouter({
