@@ -4,14 +4,6 @@
 
       <!-- Main Content -->
       <div class="flex-1 p-8">
-        <!-- Top Bar -->
-        <div class="flex justify-end mb-6">
-          <button
-            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Logout
-          </button>
-        </div>
 
         <!-- Summary Cards -->
         <div class="grid grid-cols-4 gap-6 mb-8">
