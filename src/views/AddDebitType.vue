@@ -159,7 +159,7 @@
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">ค่าธรรมเนียมแรกเข้า</label>
               <input 
-                v-model.number="formData.entrance_free" 
+                v-model.number="formData.entrance_fee" 
                 type="number" 
                 step="0.01"
                 min="0"
@@ -288,7 +288,7 @@ interface DebitTypeForm {
   type_debit_name: string;
   type_debit_description: string;
   can_physical: boolean;
-  entrance_free: number;
+  entrance_fee: number;
   annual_fee: number;
   min_limit: number;
   default_limit: number;
@@ -302,7 +302,7 @@ const formData = ref<DebitTypeForm>({
   type_debit_name: '',
   type_debit_description: '',
   can_physical: false,
-  entrance_free: 0,
+  entrance_fee: 0,
   annual_fee: 0,
   min_limit: 0,
   default_limit: 0,
@@ -364,7 +364,7 @@ const handleSubmit = async () => {
       type_debit_name: formData.value.type_debit_name,
       type_debit_description: formData.value.type_debit_description,
       can_physical: formData.value.can_physical,
-      entrance_free: formData.value.entrance_free,
+      entrance_fee: formData.value.entrance_fee,
       annual_fee: formData.value.annual_fee,
       min_limit: formData.value.min_limit,
       default_limit: formData.value.default_limit,

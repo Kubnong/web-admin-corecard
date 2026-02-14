@@ -32,7 +32,7 @@ interface AddDebitTypeRequest {
     type_debit_name: string;
     type_debit_description: string;
     can_physical: boolean;
-    entrance_free: number;
+    entrance_fee: number;
     annual_fee: number;
     min_limit: number;
     default_limit: number;
@@ -56,6 +56,10 @@ interface ResetPasswordRequest {
     otp: string;
     ref_code: string;
     new_password: string;
+}
+
+interface TypeDebitIdRequest {
+    type_debit_id: string;
 }
 
 export const authorize = (payload: AuthorizeRequest) => {
@@ -108,4 +112,12 @@ export const verifyOTP = (payload: VerifyOtpRequest) => {
 
 export const resetPassword = (payload: ResetPasswordRequest) => {
     return api.post('/web/reset-password', payload)
+}
+
+export const updateDebitType = (payload: AddDebitTypeRequest) => {
+  return api.put('/cards/type-debits/detail', payload);
+};
+
+export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
+    return api.post('/cards/type-debits/detail', payload);
 }

@@ -3,12 +3,13 @@
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
     <div class="p-6 border-b border-gray-200 flex justify-between items-center">
       <h2 class="text-xl font-semibold text-gray-800">Debit Configuration</h2>
-      <button
+      <router-link
+        to="/add-debit-type" 
         class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
       >
         <span class="text-lg">+</span>
         Create New
-      </button>
+      </router-link>
     </div>
 
     <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50">
@@ -108,6 +109,7 @@
             <td class="px-6 py-3 text-center">
               <div class="flex items-center justify-center gap-2">
                 <button
+                  @click="goToDebitTypeDetail(typeDebit.type_debit_id)"
                   class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-1.5 rounded-md transition-colors"
                   title="Edit"
                 >
@@ -190,7 +192,10 @@
 <script setup lang="ts">
 import { getTypeDebits } from "@/services/webAdminService";
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import MainLayout from "@/components/MainLayout.vue";
+
+const router = useRouter();
 
 interface DebitType {
   type_debit_id: string;
@@ -217,6 +222,14 @@ const fetchTypeDebitsData = async () => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const goToDebitTypeDetail = (type_debit_id: string) => {
+  // ส่งข้อมูล item ทั้งก้อนไปหน้า Edit ผ่าน state
+  router.push({ 
+    path: 'edit-debit-type', 
+    state: { type_debit_id: type_debit_id } 
+  });
 };
 
 onMounted(() => {
