@@ -40,10 +40,21 @@ interface AddDebitTypeRequest {
     expiry_year: number;
     // images: string[]; // base64 strings (without data:image prefix)
 }
-
 interface ChangePasswordRequest {
     email: string;
     old_password: string;
+    new_password: string;
+}
+interface ForgotPasswordRequest {
+    email: string;
+}
+interface VerifyOtpRequest {
+    otp: string;
+    ref_code: string;
+}
+interface ResetPasswordRequest {
+    otp: string;
+    ref_code: string;
     new_password: string;
 }
 
@@ -85,4 +96,16 @@ export const addTypeDebit = (payload: AddDebitTypeRequest) => {
 
 export const changePassword = (payload: ChangePasswordRequest) => {
     return api.put('/web/change-password', payload)
+}
+
+export const sendOTP = (payload: ForgotPasswordRequest) => {
+    return api.post('/web/send-otp', payload, {timeout: 30000})
+}
+
+export const verifyOTP = (payload: VerifyOtpRequest) => {
+    return api.post('/web/verify-otp', payload)
+}
+
+export const resetPassword = (payload: ResetPasswordRequest) => {
+    return api.post('/web/reset-password', payload)
 }

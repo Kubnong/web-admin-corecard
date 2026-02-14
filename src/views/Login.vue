@@ -16,7 +16,13 @@
               <input v-model="password" type="password" placeholder="*******"
                 class="w-full h-12 px-4 rounded-[15px] border border-[#858080] focus:border-[#4F39F6] outline-none" required />
             </div>
+            <div class="text-right mt-2">
+              <router-link to="/forgot-password" class="text-sm text-[#4F39F6] hover:text-[#3d2bd6] transition-colors">
+                ลืมรหัสผ่าน?
+              </router-link>
+            </div>
         </div>
+        
 
         <div v-else class="space-y-4 animate-fade-in">
             <div class="text-center">
@@ -144,3 +150,20 @@ const handleLoginFlow = async () => {
     }
 }
 </script>
+
+<style scoped>
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
