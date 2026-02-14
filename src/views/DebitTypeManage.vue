@@ -1,5 +1,6 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <MainLayout>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
     <div class="p-6 border-b border-gray-200 flex justify-between items-center">
       <h2 class="text-xl font-semibold text-gray-800">Debit Configuration</h2>
       <button
@@ -182,12 +183,14 @@
         </button>
       </div>
     </div>
-  </div>
+    </div>
+  </MainLayout>
 </template>
 
 <script setup lang="ts">
 import { getTypeDebits } from "@/services/webAdminService";
 import { ref, onMounted } from "vue";
+import MainLayout from "@/components/MainLayout.vue";
 
 interface DebitType {
   type_debit_id: string;

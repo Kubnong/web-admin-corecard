@@ -1,230 +1,183 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-      <h2 class="text-xl font-semibold text-gray-800">Debit Configuration</h2>
-      <button
-        @click="goToAddPage"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
-      >
-        <span class="text-lg">+</span>
-        Create New
-      </button>
-    </div>
+  <MainLayout>
+    <div class="min-h-screen bg-gray-100 flex">
 
-    <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50">
-      <div class="relative">
+      <!-- Main Content -->
+      <div class="flex-1 p-8">
+        <!-- Top Bar -->
+        <div class="flex justify-end mb-6">
+          <button
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+          >
+            Logout
+          </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+          <div class="bg-blue-500 text-white rounded-xl p-6 shadow">
+            <div class="text-3xl font-bold">total</div>
+            <div>จำนวนบัตรทั้งหมด</div>
+            <div>{{ cards.length }}</div>
+          </div>
+
+          <div class="bg-green-500 text-white rounded-xl p-6 shadow">
+            <div class="text-3xl font-bold">active</div>
+            <div>บัตรที่ใช้งานอยู่</div>
+            <div>
+              {{ cards.filter((card) => card.status === "active").length }}
+            </div>
+          </div>
+
+          <div class="bg-orange-500 text-white rounded-xl p-6 shadow">
+            <div class="text-3xl font-bold">summary.pending</div>
+            <div>อยู่ระหว่างจัดส่ง</div>
+          </div>
+
+          <div class="bg-red-500 text-white rounded-xl p-6 shadow">
+            <div class="text-3xl font-bold">summary.blocked</div>
+            <div>ถูกระงับ/อายัด</div>
+            <div>
+              {{
+                cards.filter(
+                  (card) =>
+                    card.status === "frozen" || card.status === "locked",
+                ).length
+              }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <!-- <div class="flex gap-4 mb-6">
         <input
           type="text"
-          placeholder="Search Card Name..."
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
+          placeholder="Enter Card Number"
+          class="border rounded px-4 py-2 w-1/4"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+
+        <input
+          type="text"
+          placeholder="เบอร์โทรศัพท์"
+          class="border rounded px-4 py-2 w-1/4"
+        />
+
+        <select
+          class="border rounded px-4 py-2"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
+          <option value="">Type</option>
+          <option value="virtual">Virtual</option>
+          <option value="physical">Physical</option>
+        </select>
 
-      <select
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white"
-      >
-        <option value="">All Types</option>
-        <option value="Visa">Visa</option>
-        <option value="MasterCard">MasterCard</option>
-      </select>
+        <select
+          class="border rounded px-4 py-2"
+        >
+          <option value="">Status</option>
+          <option value="Active">Active</option>
+          <option value="Frozen">Frozen</option>
+          <option value="Lock">Lock</option>
+          <option value="Inactive">Inactive</option>
+        </select>
 
-      <select
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white"
-      >
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-      </select>
+        <button
+          @click="resetFilter"
+          class="bg-gray-700 text-white px-4 py-2 rounded"
+        >
+          Reset
+        </button>
+      </div> -->
 
-      <input
-        type="date"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-500"
-      />
-    </div>
+        <!-- Table -->
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+          <table class="min-w-full text-sm">
+            <thead class="bg-blue-100">
+              <tr>
+                <th class="px-6 py-3 text-left">Card Number (PAN)</th>
+                <th class="px-6 py-3 text-left">Customer Name</th>
+                <th class="px-6 py-3 text-left">Type</th>
+                <th class="px-6 py-3 text-left">Card Product</th>
+                <th class="px-6 py-3 text-left">Status</th>
+                <th class="px-6 py-3 text-left">Created</th>
+                <th class="px-6 py-3 text-left">Expiry</th>
+              </tr>
+            </thead>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
-        <thead>
-          <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wider">
-            <th class="px-6 py-4 font-semibold border-b">Card Image</th>
-            <th class="px-6 py-4 font-semibold border-b">Card Name</th>
-            <th class="px-6 py-4 font-semibold border-b">Description</th>
-            <th class="px-6 py-4 font-semibold border-b">Limit (Max)</th>
-            <th class="px-6 py-4 font-semibold border-b">Fee (Annual)</th>
-            <th class="px-6 py-4 font-semibold border-b text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody class="text-sm text-gray-700">
-          <tr
-            v-for="typeDebit in typeDebits"
-            :key="typeDebit.type_debit_id"
-            class="hover:bg-gray-50 transition-colors border-b last:border-b-0"
-          >
-            <td class="px-6 py-3">
-              <img
-                v-if="typeDebit.type_debit_image"
-                :src="`data:image/png;base64,${typeDebit.type_debit_image}`"
-                class="w-16 h-10 object-cover rounded-md shadow-sm"
-                alt="Card Image"
-              />
-              <div
-                v-else
-                class="w-16 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md shadow-sm flex items-center justify-center text-white text-[10px] font-bold"
+            <tbody>
+              <tr
+                v-for="card in cards"
+                :key="card.cardId"
+                @click="goToDetail(card.cardId)"
+                class="border-t cursor-pointer hover:bg-gray-50"
               >
-                No Image
-              </div>
-            </td>
+                <td class="px-6 py-4">{{ card.last_digits }}</td>
+                <td class="px-6 py-4">{{ card.holder_id }}</td>
+                <td class="px-6 py-4 capitalize">{{ card.type_debit_id }}</td>
+                <td class="px-6 py-4">
+                  {{ card.virtual ? "Virtual" : "Physical" }}
+                </td>
 
-            <td class="px-6 py-3 font-medium text-gray-900">
-              {{ typeDebit.type_debit_name }}
-            </td>
-
-            <td class="px-6 py-3 text-gray-500">
-              {{ typeDebit.type_debit_description }}
-            </td>
-
-            <td class="px-6 py-3">
-              {{ typeDebit.max_limit?.toLocaleString() }}
-            </td>
-
-            <td class="px-6 py-3">
-              {{ typeDebit.annual_fee?.toLocaleString() }}
-            </td>
-
-            <td class="px-6 py-3 text-center">
-              <div class="flex items-center justify-center gap-2">
-                <button
-                  class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-1.5 rounded-md transition-colors"
-                  title="Edit"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                <td class="px-6 py-4">
+                  <div
+                    :class="card.status"
+                    class="px-3 py-1 rounded text-xs w-fit"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md transition-colors"
-                  title="Delete"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                    {{ card.status }}
+                  </div>
+                </td>
 
-    <div
-      class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
-    >
-      <span class="text-sm text-gray-500">Showing 1 to 5 of 12 entries</span>
-      <div class="flex gap-1">
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-          disabled
-        >
-          Previous
-        </button>
-        <button class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">
-          1
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          2
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          3
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          Next
-        </button>
+                <td class="px-6 py-4">{{ card.created_at }}</td>
+                <td class="px-6 py-4">{{ card.expiry }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
+  </MainLayout>
 </template>
 
 <script setup lang="ts">
-import { getTypeDebits } from "@/services/webAdminService";
-import { ref, onMounted } from "vue";
+import { getCards } from "@/services/webAdminService";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import MainLayout from "@/components/MainLayout.vue";
 
 const router = useRouter();
 
-interface DebitType {
+interface Card {
+  cardId: string;
+  holder_id: string;
   type_debit_id: string;
-  type_debit_image: string;
-  type_debit_name: string;
-  type_debit_description: string;
-  can_physical: boolean;
-  entrance_free: number;
-  annual_fee: number;
-  min_limit: number;
-  default_limit: number;
-  max_limit: number;
-  expiry_year: number;
+  last_digits: string;
+  virtual: boolean;
+  current_spending_limit: number;
+  created_at: Date;
+  status: string;
+  expiry: Date;
 }
 
-const typeDebits = ref<DebitType[]>([]);
+const cards = ref<Card[]>([]);
 
-const fetchTypeDebitsData = async () => {
+const fetchCardsData = async () => {
   try {
-    const response = await getTypeDebits();
+    const response = await getCards();
     const data = response.data;
-    typeDebits.value = data;
-    console.log(typeDebits.value);
+    cards.value = data;
+    console.log(cards.value);
   } catch (error) {
     console.log(error);
   }
 };
 
-const goToAddPage = () => {
-  router.push('/add-debit-type');
+const goToDetail = (card_id: string) => {
+  router.push({
+    path: "/debit-detail",
+    state: { card_id: card_id },
+  });
 };
 
 onMounted(() => {
-  fetchTypeDebitsData();
+  fetchCardsData();
 });
 </script>
