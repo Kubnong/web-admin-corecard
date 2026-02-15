@@ -62,6 +62,11 @@ interface TypeDebitIdRequest {
     type_debit_id: string;
 }
 
+interface SearchCustomerRequest {
+    first_name?: string;
+    last_name?: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -120,4 +125,8 @@ export const updateDebitType = (payload: AddDebitTypeRequest) => {
 
 export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
     return api.post('/cards/type-debits/detail', payload);
+}
+
+export const searchCustomer = (payload: SearchCustomerRequest) => {
+    return api.post('/web/search-user', payload) // ยิงไปที่ endpoint ที่คุณเตรียมไว้
 }
