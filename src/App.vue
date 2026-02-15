@@ -66,6 +66,9 @@ onMounted(() => {
     if (decoded && decoded.email) {
       userEmail.value = decoded.email;
     }
+    router.push("/debit-manage")
+  } else {
+    router.push("/login")
   }
 });
 
