@@ -148,6 +148,6 @@ export const createClient = (payload: CreateClientRequest) => {
     return api.post('/web/add-client', payload);
 };
 
-export const getClientById = (clientId: ClientIdRequest) => {
-    return api.get(`/api/v1/clients/${clientId}`);
+export const getClientById = (payload: ClientIdRequest) => {
+    return api.post('/web/client/detail', payload);
 };

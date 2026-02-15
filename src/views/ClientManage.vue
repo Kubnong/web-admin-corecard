@@ -8,7 +8,7 @@
           </div>
           <button 
             @click="showCreateModal = true"
-            class="text-white px-6 py-3 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors shadow-sm"
+            class="text-white bg-blue-600 cursor-pointer px-6 py-3 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors shadow-sm"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -35,7 +35,6 @@
                   v-for="client in clients" 
                   :key="client.client_id"
                   class="hover:bg-gray-50 transition-colors cursor-pointer"
-                  @click="viewClientDetail(client.client_id)"
                 >
                   <td class="px-6 py-4">
                     <p class="font-medium">{{ client.client_id }}</p>
@@ -57,7 +56,7 @@
                   </td>
                   <td class="px-6 py-4 text-right">
                     <button 
-                      @click.stop="viewClientDetail(client.client_id)"
+                      @click="viewClientDetail(client.client_id)"
                       class="text-gray-400 hover:text-indigo-600 transition-colors"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +128,6 @@ import { getClients, createClient } from '@/services/webAdminService';
 
 const router = useRouter();
 
-// ✅ Interface ตรงกับ DTO ของ Java เป๊ะๆ
 interface Client {
   client_id: string;
   client_name: string;
@@ -166,7 +164,7 @@ const handleCreateClient = async () => {
     await createClient(formData.value);
     showCreateModal.value = false;
     resetForm();
-    await fetchClients(); // โหลดข้อมูลใหม่ทันที
+    await fetchClients(); 
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Failed to create client';
   } finally {
@@ -184,11 +182,11 @@ const resetForm = () => {
   formData.value = { client_name: '', organization_name: '', description: '' };
 };
 
-const viewClientDetail = (clientId: string) => {
-  router.push(`/client-detail/${clientId}`);
+const viewClientDetail = (client_id: string) => {
+  router.push({ path: "client-detail", state: {client_id : client_id}});
 };
 
-// ใช้แสดงวันที่แบบเรียบง่าย
+
 const formatDate = (dateString: string) => {
   if (!dateString) return '-';
   return new Date(dateString).toLocaleString('th-TH', {
