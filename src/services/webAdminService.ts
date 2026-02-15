@@ -67,6 +67,15 @@ interface SearchCustomerRequest {
     last_name?: string;
 }
 
+interface CreateClientRequest {
+    client_name: string;
+    organization_name: string;
+    description?: string;
+}
+interface ClientIdRequest {
+    client_id: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -128,5 +137,17 @@ export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
 }
 
 export const searchCustomer = (payload: SearchCustomerRequest) => {
-    return api.post('/web/search-user', payload) // ยิงไปที่ endpoint ที่คุณเตรียมไว้
+    return api.post('/web/search-user', payload);
 }
+
+export const getClients = () => {
+    return api.get('/web/clients');
+};
+
+export const createClient = (payload: CreateClientRequest) => {
+    return api.post('/web/add-client', payload);
+};
+
+export const getClientById = (clientId: ClientIdRequest) => {
+    return api.get(`/api/v1/clients/${clientId}`);
+};
