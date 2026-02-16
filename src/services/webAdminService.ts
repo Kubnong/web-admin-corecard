@@ -151,3 +151,11 @@ export const createClient = (payload: CreateClientRequest) => {
 export const getClientById = (payload: ClientIdRequest) => {
     return api.post('/web/client/detail', payload);
 };
+
+export const uploadCsr = (formData: FormData) => {
+    return api.post('/web/client/add-certificate', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data' 
+        }
+    });
+};
