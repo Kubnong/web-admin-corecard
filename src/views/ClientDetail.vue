@@ -59,24 +59,25 @@
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-50">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Environment</th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject DN</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Valid Until</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Expiry</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Certficate</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
                 <tr v-if="certificates.length === 0">
                   <td colspan="5" class="px-6 py-12 text-center text-gray-500">No active certificates found.</td>
                 </tr>
-                <tr v-for="cert in certificates" :key="cert.id">
-                  <td class="px-6 py-4">{{ cert.environment }}</td>
-                  <td class="px-6 py-4 text-xs font-mono">{{ cert.subject_dn }}</td>
-                  <td class="px-6 py-4">{{ formatDate(cert.valid_to) }}</td>
-                  <td class="px-6 py-4">{{ cert.status }}</td>
+                <tr v-for="cert in certificates" :key="cert.certificate_id">
+                  <td class="px-6 py-4">{{ cert.subject_dn }}</td>
+                  <td class="px-6 py-4">{{ formatDate(cert.expiry_date) }}</td>
                   <td class="px-6 py-4 text-right">
-                    <button class="text-indigo-600 hover:text-indigo-900">Download</button>
+                    <button 
+                      @click="downloadCertificate(cert)" 
+                      class="text-indigo-600 hover:text-indigo-900 font-medium cursor-pointer"
+                    >
+                      Download
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -142,14 +143,21 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import MainLayout from '@/components/MainLayout.vue';
-import { getClientById, uploadCsr } from '@/services/webAdminService';
+import { getClientById, getClientCertificateById, uploadCsr } from '@/services/webAdminService';
 import forge from 'node-forge';
+
+interface ClientCertificate {
+  certificate_id: string;
+  certificate_pem: string;
+  expiry_date: string;
+  subject_dn: string;
+} 
 
 const route = useRoute();
 const router = useRouter();
 
 const client = ref<any>(null);
-const certificates = ref<any[]>([]);
+const certificates = ref<ClientCertificate[]>([]);
 const loading = ref(true);
 const error = ref(false);
 
@@ -177,11 +185,49 @@ const fetchData = async () => {
   try {
     const res = await getClientById({ client_id: client_id });
     client.value = res.data;
-    certificates.value = [];
   } catch (e) {
     error.value = true;
   } finally {
     loading.value = false;
+  }
+
+  try {
+    const certificates_response = await getClientCertificateById({ client_id: client_id });
+    certificates.value = certificates_response.data;
+  } catch (e) {
+    console.log(e)
+  }
+};
+
+const downloadCertificate = (cert : any) => {
+  // 1. กันเหนียว: เช็คว่ามีข้อมูล PEM ไหม
+  if (!cert.certificate_pem) {
+    alert("ไม่พบข้อมูลไฟล์ Certificate");
+    return;
+  }
+
+  try {
+    // 2. สร้าง Blob จากข้อมูล PEM ของแถวนั้นๆ
+    const blob = new Blob([cert.certificate_pem], { type: 'application/x-x509-ca-cert' });
+    const url = URL.createObjectURL(blob);
+
+    // 3. สร้างชื่อไฟล์ให้สื่อความหมาย (เช่น client-1234.crt)
+    // หรือจะใช้ cert.subject_dn มาตัดคำก็ได้
+    const fileName = `client-${cert.certificate_id.substring(0, 8)}.crt`;
+
+    // 4. สร้าง Link ล่องหนเพื่อกดโหลด
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+
+    // 5. เก็บกวาด Memory
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Download failed:", error);
+    alert("เกิดข้อผิดพลาดในการดาวน์โหลด");
   }
 };
 
@@ -274,4 +320,5 @@ const formatDate = (date: string) => {
 };
 
 onMounted(() => fetchData());
+
 </script>

@@ -50,10 +50,9 @@
                     accept="image/*"
                     class="hidden"
                     ref="fileInput2"
-                    disabled
                   />
                   <div 
-                    class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center transition-colors relative overflow-hidden opacity-50"
+                    class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-gray-50 transition-colors relative overflow-hidden"
                   >
                     <img 
                       v-if="formData.images[1]" 
@@ -81,10 +80,9 @@
                     accept="image/*"
                     class="hidden"
                     ref="fileInput3"
-                    disabled
                   />
                   <div 
-                    class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center transition-colors relative overflow-hidden opacity-50"
+                    class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-gray-50 transition-colors relative overflow-hidden"
                   >
                     <img 
                       v-if="formData.images[2]" 
@@ -315,6 +313,14 @@ const isSubmitting = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+const imageFiles = ref<{ [key: number]: File | null }>({
+  0: null, // fileSmall
+  1: null, // fileMedium
+  2: null  // fileLarge
+});
+
+const previewImages = ref<string[]>(['', '', '']);
+
 // Convert image to base64
 const handleImageUpload = (event: Event, index: number) => {
   const target = event.target as HTMLInputElement;
@@ -328,14 +334,11 @@ const handleImageUpload = (event: Event, index: number) => {
       return;
     }
 
+    imageFiles.value[index] = file;
+
     const reader = new FileReader();
     reader.onload = (e) => {
-      const result = e.target?.result as string;
-      formData.value.images[index] = result;
-      if (index === 0) {
-        // Store the first image as the payload image (strip data URI prefix)
-        formData.value.type_debit_image = (result.split(',')[1] || result);
-      }
+      previewImages.value[index] = e.target?.result as string;
     };
     reader.onerror = () => {
       errorMessage.value = 'เกิดข้อผิดพลาดในการอ่านไฟล์';
@@ -358,6 +361,8 @@ const handleSubmit = async () => {
       throw new Error('วงเงินเริ่มต้นต้องไม่มากกว่าวงเงินสูงสุด');
     }
 
+    const submissionData = new FormData();
+
     // Prepare payload - convert base64 images to just the data part (remove data:image/png;base64,)
     const payload = {
       type_debit_image: formData.value.type_debit_image,
@@ -379,7 +384,15 @@ const handleSubmit = async () => {
     //   })
     };
 
-    await addTypeDebit(payload);
+    submissionData.append('data', new Blob([JSON.stringify(payload)], {
+      type: 'application/json'
+    }));
+
+    if (imageFiles.value[0]) submissionData.append('fileSmall', imageFiles.value[0]);
+    if (imageFiles.value[1]) submissionData.append('fileMedium', imageFiles.value[1]);
+    if (imageFiles.value[2]) submissionData.append('fileLarge', imageFiles.value[2]);
+
+    await addTypeDebit(submissionData);
 
     successMessage.value = 'เพิ่มประเภทบัตรสำเร็จ! กำลังกลับไปหน้าหลัก...';
     

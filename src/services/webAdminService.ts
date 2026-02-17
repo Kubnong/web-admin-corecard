@@ -108,8 +108,12 @@ export const getHistoryLogs = (payload: cardIdRequest) => {
     return api.post('/web/history-logs', payload)
 }
 
-export const addTypeDebit = (payload: AddDebitTypeRequest) => {
-    return api.post('/cards/type-debits', payload)
+export const addTypeDebit = (payload: FormData) => {
+    return api.post('/cards/type-debits', payload, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
 }
 
 export const changePassword = (payload: ChangePasswordRequest) => {
@@ -158,4 +162,8 @@ export const uploadCsr = (formData: FormData) => {
             'Content-Type': 'multipart/form-data' 
         }
     });
+};
+
+export const getClientCertificateById = (payload: ClientIdRequest) => {
+    return api.post('/web/client-certificate/detail', payload);
 };
