@@ -194,13 +194,15 @@ const fetchData = async () => {
   try {
     const certificates_response = await getClientCertificateById({ client_id: client_id });
     certificates.value = certificates_response.data;
+    console.log(certificates.value)
   } catch (e) {
-    console.log(e)
+    error.value = true;
+  } finally {
+    loading.value = false;
   }
 };
 
 const downloadCertificate = (cert : any) => {
-  // 1. กันเหนียว: เช็คว่ามีข้อมูล PEM ไหม
   if (!cert.certificate_pem) {
     alert("ไม่พบข้อมูลไฟล์ Certificate");
     return;

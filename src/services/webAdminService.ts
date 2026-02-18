@@ -38,7 +38,6 @@ interface AddDebitTypeRequest {
     default_limit: number;
     max_limit: number;
     expiry_year: number;
-    // images: string[]; // base64 strings (without data:image prefix)
 }
 interface ChangePasswordRequest {
     email: string;
@@ -101,7 +100,7 @@ export const getDetailCard = (payload: cardIdRequest) => {
 }
 
 export const getTypeDebits = () => {
-    return api.get('/cards/type-debits')
+    return api.get('/cards/type-debits?image_size=image_large')
 }
 
 export const getHistoryLogs = (payload: cardIdRequest) => {

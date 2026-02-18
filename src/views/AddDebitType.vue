@@ -363,7 +363,6 @@ const handleSubmit = async () => {
 
     const submissionData = new FormData();
 
-    // Prepare payload - convert base64 images to just the data part (remove data:image/png;base64,)
     const payload = {
       type_debit_image: formData.value.type_debit_image,
       type_debit_name: formData.value.type_debit_name,
@@ -375,13 +374,6 @@ const handleSubmit = async () => {
       default_limit: formData.value.default_limit,
       max_limit: formData.value.max_limit,
       expiry_year: formData.value.expiry_year,
-    //   images: formData.value.images.map(img => {
-    //     if (img) {
-    //       // Remove data:image/...;base64, prefix if exists
-    //       return img.split(',')[1] || img;
-    //     }
-    //     return '';
-    //   })
     };
 
     submissionData.append('data', new Blob([JSON.stringify(payload)], {

@@ -78,7 +78,7 @@
             <td class="px-6 py-3">
               <img
                 v-if="typeDebit.type_debit_image"
-                :src="`data:image/png;base64,${typeDebit.type_debit_image}`"
+                :src="typeDebit.type_debit_image"
                 class="w-16 h-10 object-cover rounded-md shadow-sm"
                 alt="Card Image"
               />
@@ -235,40 +235,4 @@ const goToDebitTypeDetail = (type_debit_id: string) => {
 onMounted(() => {
   fetchTypeDebitsData();
 });
-
-// // Define Types
-// interface DebitCard {
-//   id: number;
-//   name: string;
-//   bin: string;
-//   type: 'Visa' | 'MasterCard';
-//   status: 'Active' | 'Inactive';
-//   createdAt: string;
-// }
-
-// // Mock Data
-// const cards = ref<DebitCard[]>([
-//   { id: 1, name: 'Platinum Rewards', bin: '424242', type: 'Visa', status: 'Active', createdAt: '2023-10-01' },
-//   { id: 2, name: 'Travel Elite', bin: '510510', type: 'MasterCard', status: 'Active', createdAt: '2023-10-05' },
-//   { id: 3, name: 'Student Saver', bin: '411111', type: 'Visa', status: 'Inactive', createdAt: '2023-11-12' },
-//   { id: 4, name: 'Business Gold', bin: '550000', type: 'MasterCard', status: 'Active', createdAt: '2023-12-01' },
-//   { id: 5, name: 'Shopping Plus', bin: '400000', type: 'Visa', status: 'Active', createdAt: '2024-01-15' },
-// ]);
-
-// // Filters
-// const searchQuery = ref('');
-// const selectedType = ref('');
-// const selectedStatus = ref('');
-
-// // Computed Property for Filtering
-// const filteredCards = computed(() => {
-//   return cards.value.filter(card => {
-//     const matchSearch = card.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-//                         card.bin.includes(searchQuery.value);
-//     const matchType = selectedType.value ? card.type === selectedType.value : true;
-//     const matchStatus = selectedStatus.value ? card.status === selectedStatus.value : true;
-
-//     return matchSearch && matchType && matchStatus;
-//   });
-// });
 </script>
