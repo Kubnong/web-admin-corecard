@@ -75,20 +75,24 @@ interface ClientIdRequest {
     client_id: string;
 }
 
+interface RefreshTokenRequest {
+    refresh_token: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
-    return api.post('/web/authorize', payload) // ตรงกับ @PostMapping("/authorize")
+    return api.post('/web/auth/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
 
 export const getToken = (payload: TokenRequest) => {
-    return api.post('/web/token', payload) // ตรงกับ @PostMapping("/token")
+    return api.post('/web/auth/token', payload) // ตรงกับ @PostMapping("/token")
 }
 
 export const setup2FA = (payload: MfaSetupRequest) => {
-    return api.post('/web/2fa/setup', payload);
+    return api.post('/web/auth/2fa/setup', payload);
 }
 
 export const verify2FA = (payload: MfaVerifyRequest) => {
-    return api.post('/web/2fa/verify', payload);
+    return api.post('/web/auth/2fa/verify', payload);
 }
 
 export const getCards = () => {
@@ -120,15 +124,15 @@ export const changePassword = (payload: ChangePasswordRequest) => {
 }
 
 export const sendOTP = (payload: ForgotPasswordRequest) => {
-    return api.post('/web/send-otp', payload, {timeout: 30000})
+    return api.post('/web/auth/send-otp', payload, {timeout: 30000})
 }
 
 export const verifyOTP = (payload: VerifyOtpRequest) => {
-    return api.post('/web/verify-otp', payload)
+    return api.post('/web/auth/verify-otp', payload)
 }
 
 export const resetPassword = (payload: ResetPasswordRequest) => {
-    return api.post('/web/reset-password', payload)
+    return api.post('/web/auth/reset-password', payload)
 }
 
 export const updateDebitType = (payload: AddDebitTypeRequest) => {
@@ -136,7 +140,7 @@ export const updateDebitType = (payload: AddDebitTypeRequest) => {
 };
 
 export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
-    return api.post('/cards/type-debits/detail', payload);
+    return api.post('/cards/type-debits/detail?image_size=image_large', payload);
 }
 
 export const searchCustomer = (payload: SearchCustomerRequest) => {
@@ -165,4 +169,8 @@ export const uploadCsr = (formData: FormData) => {
 
 export const getClientCertificateById = (payload: ClientIdRequest) => {
     return api.post('/web/client-certificate/detail', payload);
+};
+
+export const refreshAccessToken = (payload: RefreshTokenRequest) => {
+    return api.post('/web/auth/refresh', payload); 
 };

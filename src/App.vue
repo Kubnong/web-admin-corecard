@@ -76,6 +76,7 @@ const handleLogout = () => {
   if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("idToken");
+    localStorage.removeItem("refreshToken")
     userEmail.value = '';
     router.push("/login");
   }

@@ -112,10 +112,11 @@ const handleLoginFlow = async () => {
             code_verify: codeVerifier
         });
 
-        const { access_token, id_token } = tokenResponse.data;
+        const { access_token, id_token, refresh_token } = tokenResponse.data;
 
         localStorage.setItem('accessToken', access_token);
         localStorage.setItem('idToken', id_token);
+        localStorage.setItem('refreshToken', refresh_token)
         
         console.log('Login Success!');
         router.push('/debit-manage'); 

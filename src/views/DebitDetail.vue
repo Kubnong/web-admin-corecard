@@ -101,7 +101,7 @@
                 <tbody class="divide-y divide-gray-200">
                     <tr v-for="log in logData" :key="log.log_id" class="hover:bg-gray-50">
                         <td class="px-6 py-4 text-sm text-gray-600 font-medium">
-                            {{ log.timestamp}}
+                            {{ formatDate(log.timestamp) }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-800">
                             {{ log.action }}
@@ -120,7 +120,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { getDetailCard, getHistoryLogs } from '@/services/webAdminService';
 import MainLayout from '@/components/MainLayout.vue';
 
-const route = useRoute();
 const cardData = ref<CardDetail>();
 const logData = ref<LogDetail[]>([]);
 
@@ -145,6 +144,18 @@ interface LogDetail {
   timestamp: Date;
   card_id: string;
 }
+
+const formatDate = (dateInput: string | Date) => {
+  if (!dateInput) return "-";
+  const date = new Date(dateInput);
+  return date.toLocaleString("th-TH", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const fetchCardDetail = async () => {
   const card_id = history.state.card_id as string;

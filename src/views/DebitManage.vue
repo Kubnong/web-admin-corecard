@@ -4,25 +4,25 @@
       <div class="flex-1 p-8">
         <div class="grid grid-cols-4 gap-6 mb-8">
           <div class="bg-blue-500 text-white rounded-xl p-6 shadow">
-            <div class="text-3xl font-bold">total</div>
+            <div class="text-3xl font-bold">Total</div>
             <div>จำนวนบัตรทั้งหมด</div>
             <div>{{ cards.length }}</div>
           </div>
 
           <div class="bg-green-500 text-white rounded-xl p-6 shadow">
-            <div class="text-3xl font-bold">active</div>
+            <div class="text-3xl font-bold">Active</div>
             <div>บัตรที่ใช้งานอยู่</div>
             <div>{{ activeCount }}</div>
           </div>
 
           <div class="bg-orange-500 text-white rounded-xl p-6 shadow">
-            <div class="text-3xl font-bold">summary.pending</div>
+            <div class="text-3xl font-bold">In Transit</div>
             <div>อยู่ระหว่างจัดส่ง</div>
             <div>{{ pendingCount }}</div>
           </div>
 
           <div class="bg-red-500 text-white rounded-xl p-6 shadow">
-            <div class="text-3xl font-bold">summary.blocked</div>
+            <div class="text-3xl font-bold">Blocked</div>
             <div>ถูกระงับ/อายัด</div>
             <div>{{ blockedCount }}</div>
           </div>

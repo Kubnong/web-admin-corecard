@@ -296,16 +296,16 @@ const fetchData = async () => {
             };
 
             // จัดการรูปภาพเก่า: ถ้ามีรูปมา ให้ใส่ prefix เพื่อแสดงผล
-            if (data.type_debit_image) {
-                // เช็คว่ามี prefix อยู่แล้วหรือเปล่า (บางที DB อาจเก็บเต็ม)
-                const prefix = "data:image/png;base64,";
-                const imgStr = data.type_debit_image.startsWith("data:image") 
-                    ? data.type_debit_image 
-                    : prefix + data.type_debit_image;
+            // if (data.type_debit_image) {
+            //     // เช็คว่ามี prefix อยู่แล้วหรือเปล่า (บางที DB อาจเก็บเต็ม)
+            //     const prefix = "data:image/png;base64,";
+            //     const imgStr = data.type_debit_image.startsWith("data:image") 
+            //         ? data.type_debit_image 
+            //         : prefix + data.type_debit_image;
                 
-                formData.value.images[0] = imgStr;
-                formData.value.type_debit_image = data.type_debit_image; // เก็บค่าเดิมไว้ก่อน
-            }
+            formData.value.images[0] = formData.value.type_debit_image;
+            //     formData.value.type_debit_image = data.type_debit_image; // เก็บค่าเดิมไว้ก่อน
+            // }
         }
     } catch (error) {
         console.error('Error fetching details:', error);
