@@ -52,8 +52,26 @@
             <label>
               <label class="block text-xs text-gray-600 mb-2">รูปภาพขนาดกลาง</label>
               <div class="relative">
-                <div class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center relative overflow-hidden opacity-50 bg-gray-50">
-                   <span class="text-xs text-gray-400">ยังไม่เปิดใช้งาน</span>
+                <input 
+                  type="file" 
+                  @change="handleImageUpload($event, 1)"
+                  accept="image/*"
+                  class="hidden"
+                  ref="fileInput2"
+                />
+                <div class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-gray-50 transition-colors relative overflow-hidden">
+                  <img 
+                    v-if="formData.images[1]" 
+                    :src="formData.images[1]" 
+                    class="absolute inset-0 w-full h-full object-cover"
+                    alt="Preview 2"
+                  />
+                  <div v-else class="text-center text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <span class="text-xs">คลิกเพื่ออัปโหลดใหม่</span>
+                  </div>
                 </div>
               </div>
             </label>
@@ -61,8 +79,26 @@
             <label>
               <label class="block text-xs text-gray-600 mb-2">รูปภาพขนาดใหญ่</label>
               <div class="relative">
-                <div class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center relative overflow-hidden opacity-50 bg-gray-50">
-                   <span class="text-xs text-gray-400">ยังไม่เปิดใช้งาน</span>
+                <input 
+                  type="file" 
+                  @change="handleImageUpload($event, 2)"
+                  accept="image/*"
+                  class="hidden"
+                  ref="fileInput3"
+                />
+                <div class="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-gray-50 transition-colors relative overflow-hidden">
+                  <img 
+                    v-if="formData.images[2]" 
+                    :src="formData.images[2]" 
+                    class="absolute inset-0 w-full h-full object-cover"
+                    alt="Preview 3"
+                  />
+                  <div v-else class="text-center text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <span class="text-xs">คลิกเพื่ออัปโหลดใหม่</span>
+                  </div>
                 </div>
               </div>
             </label>
@@ -294,18 +330,10 @@ const fetchData = async () => {
                 ...data,
                 images: ['', '', ''] // Reset images array
             };
-
-            // จัดการรูปภาพเก่า: ถ้ามีรูปมา ให้ใส่ prefix เพื่อแสดงผล
-            // if (data.type_debit_image) {
-            //     // เช็คว่ามี prefix อยู่แล้วหรือเปล่า (บางที DB อาจเก็บเต็ม)
-            //     const prefix = "data:image/png;base64,";
-            //     const imgStr = data.type_debit_image.startsWith("data:image") 
-            //         ? data.type_debit_image 
-            //         : prefix + data.type_debit_image;
-                
-            formData.value.images[0] = formData.value.type_debit_image;
-            //     formData.value.type_debit_image = data.type_debit_image; // เก็บค่าเดิมไว้ก่อน
-            // }
+            formData.value.images[0] = data.image_small || '';
+            formData.value.images[1] = data.image_medium || '';
+            formData.value.images[2] = data.image_large || '';;
+          
         }
     } catch (error) {
         console.error('Error fetching details:', error);

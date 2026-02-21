@@ -140,7 +140,7 @@ export const updateDebitType = (payload: AddDebitTypeRequest) => {
 };
 
 export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
-    return api.post('/cards/type-debits/detail?image_size=image_large', payload);
+    return api.post('/cards/type-debits/detail?image_size=all', payload);
 }
 
 export const searchCustomer = (payload: SearchCustomerRequest) => {
