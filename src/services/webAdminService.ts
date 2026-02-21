@@ -79,6 +79,11 @@ interface RefreshTokenRequest {
     refresh_token: string;
 }
 
+interface UpdateTrackingStatusRequest {
+    card_id: string;
+    delivery_status: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/auth/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -173,4 +178,12 @@ export const getClientCertificateById = (payload: ClientIdRequest) => {
 
 export const refreshAccessToken = (payload: RefreshTokenRequest) => {
     return api.post('/web/auth/refresh', payload); 
+};
+
+export const getAllTrackingStatus = () => {
+    return api.get('/cards/tracking-status');
+};
+
+export const updateTrackingStatus = (payload: UpdateTrackingStatusRequest) => {
+    return api.post('/cards/tracking-status', payload);
 };

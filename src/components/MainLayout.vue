@@ -95,6 +95,15 @@
           </li>
 
           <li class="mb-1">
+            <router-link to="/debit-tracking" :class="['flex items-center gap-3 px-6 py-4 transition-colors', isActive('/debit-tracking') ? 'bg-gray-800 text-white border-l-4 border-red-500' : 'text-gray-400 hover:bg-gray-800 hover:text-white']">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+              Card Tracking
+            </router-link>
+          </li>
+
+          <li class="mb-1">
             <router-link
               to="/setting"
               :class="[
