@@ -187,3 +187,7 @@ export const getAllTrackingStatus = () => {
 export const updateTrackingStatus = (payload: UpdateTrackingStatusRequest) => {
     return api.post('/cards/tracking-status', payload);
 };
+
+export const getSensitiveData = (payload: cardIdRequest) => {
+    return api.post('/cards/sensitive-data', payload);
+}
