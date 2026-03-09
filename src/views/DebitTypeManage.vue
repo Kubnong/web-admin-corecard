@@ -190,7 +190,7 @@
 </template>
 
 <script setup lang="ts">
-import { getTypeDebits } from "@/services/webAdminService";
+import { getTypeDebits, getImage } from "@/services/webAdminService";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import MainLayout from "@/components/MainLayout.vue";
@@ -198,6 +198,7 @@ import MainLayout from "@/components/MainLayout.vue";
 const router = useRouter();
 
 interface DebitType {
+  filename: string;
   type_debit_id: string;
   type_debit_image: string;
   type_debit_name: string;
@@ -211,16 +212,42 @@ interface DebitType {
   expiry_year: number;
 }
 
+
+
 const typeDebits = ref<DebitType[]>([]);
 
 const fetchTypeDebitsData = async () => {
   try {
     const response = await getTypeDebits();
-    const data = response.data;
-    typeDebits.value = data;
-    console.log(typeDebits.value);
+    const data = response.data; 
+
+    // 🚨 นำข้อมูลมาวนลูปเพื่อดึงรูปภาพ Base64 ทีละรายการ
+    const enhancedData = await Promise.all(
+      data.map(async (item: any) => {
+        // ถ้ามีชื่อไฟล์ส่งมา
+        if (item.type_debit_image) {
+          try {
+            // ยิงไปขอ Base64 จาก Backend
+            const imgRes = await getImage({ fileName: item.type_debit_image });
+            
+            // นำ Base64 มาประกอบเป็น Data URL และเก็บลงฟิลด์ type_debit_image ที่ Template ใช้แสดงผล
+            // (เช็คด้วยว่ารูปใน MinIO เป็น png หรือ jpeg/jpg)
+            item.type_debit_image = `data:image/png;base64,${imgRes.data.imageBase64}`;
+          } catch (imgError) {
+            console.error(`ไม่สามารถโหลดรูปภาพได้: ${item.fileName}`, imgError);
+            item.type_debit_image = ''; // ถ้าพังให้เป็นค่าว่าง Template จะได้ขึ้น No Image
+          }
+        }
+        return item;
+      })
+    );
+
+    // นำข้อมูลที่ประกอบร่างรูปภาพเสร็จแล้ว ไปแสดงผล
+    typeDebits.value = enhancedData;
+    console.log("Data with images:", typeDebits.value);
+
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching debits:", error);
   }
 };
 

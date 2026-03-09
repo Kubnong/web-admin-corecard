@@ -92,7 +92,7 @@ interface UpdateClientRequest {
 }
 
 interface imageRequest {
-    image_name: string;
+    fileName: string;
 }
 
 export const authorize = (payload: AuthorizeRequest) => {
