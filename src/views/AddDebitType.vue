@@ -140,7 +140,7 @@
                 />
                 <span class="text-sm text-gray-700">Virtual</span>
               </label>
-              <label class="flex items-center gap-2 cursor-pointer">
+              <!-- <label class="flex items-center gap-2 cursor-pointer">
                 <input 
                   type="radio" 
                   v-model="formData.can_physical" 
@@ -148,7 +148,7 @@
                   class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                 />
                 <span class="text-sm text-gray-700">Physical</span>
-              </label>
+              </label> -->
             </div>
           </div>
 

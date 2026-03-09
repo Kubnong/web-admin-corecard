@@ -15,11 +15,11 @@
             <div>{{ activeCount }}</div>
           </div>
 
-          <div class="bg-orange-500 text-white rounded-xl p-6 shadow">
+          <!-- <div class="bg-orange-500 text-white rounded-xl p-6 shadow">
             <div class="text-3xl font-bold">In Transit</div>
             <div>อยู่ระหว่างจัดส่ง</div>
             <div>{{ pendingCount }}</div>
-          </div>
+          </div> -->
 
           <div class="bg-red-500 text-white rounded-xl p-6 shadow">
             <div class="text-3xl font-bold">Blocked</div>

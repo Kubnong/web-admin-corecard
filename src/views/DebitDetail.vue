@@ -18,9 +18,7 @@
         </div>
 
         <div class="z-10 mt-4">
-          <div
-            v-if="sensitiveData !== null" class="flex items-center gap-4 text-2xl tracking-widest font-mono"
-          >
+          <div v-if="sensitiveData" class="flex items-center gap-4 text-2xl tracking-widest font-mono">
             <span>{{ sensitiveData?.pan.substring(0,4) }}</span>
             <span>{{ sensitiveData?.pan.substring(4,8) }}</span>
             <span>{{ sensitiveData?.pan.substring(8,12) }}</span>
@@ -108,7 +106,7 @@
 
           <div>
             <h3 class="font-bold text-gray-900 mb-1">Card Created</h3>
-            <p class="text-gray-500 text-sm">{{ cardData?.created_at }}</p>
+            <p class="text-gray-500 text-sm">{{ formatDate(cardData?.created_at) }}</p>
           </div>
 
           <div>
@@ -136,10 +134,10 @@
 
           <div class="hidden lg:block"></div>
 
-          <div class="md:col-span-3">
+          <!-- <div class="md:col-span-3">
             <h3 class="font-bold text-gray-900 mb-1">Shipping address</h3>
             <p class="text-gray-500 text-sm">-</p>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -218,15 +216,11 @@ interface SensitiveDetail {
     cvv: string;
 }
 
-const formatDate = (dateInput: string | Date) => {
+const formatDate = (dateInput?: string | Date | null) => {
   if (!dateInput) return "-";
-  const date = new Date(dateInput);
-  return date.toLocaleString("th-TH", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Date(dateInput).toLocaleString('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
   });
 };
 

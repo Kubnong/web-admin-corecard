@@ -70,6 +70,7 @@ interface CreateClientRequest {
     client_name: string;
     organization_name: string;
     description?: string;
+    scope: string;
 }
 interface ClientIdRequest {
     client_id: string;
@@ -82,6 +83,16 @@ interface RefreshTokenRequest {
 interface UpdateTrackingStatusRequest {
     card_id: string;
     delivery_status: string;
+}
+
+interface UpdateClientRequest {
+    client_id: string;
+    description?: string;
+    scope?: string; 
+}
+
+interface imageRequest {
+    image_name: string;
 }
 
 export const authorize = (payload: AuthorizeRequest) => {
@@ -110,6 +121,10 @@ export const getDetailCard = (payload: cardIdRequest) => {
 
 export const getTypeDebits = () => {
     return api.get('/cards/type-debits?image_size=image_large')
+}
+
+export const getImage = (payload: imageRequest) => {
+    return api.post('/cards/image', payload);
 }
 
 export const getHistoryLogs = (payload: cardIdRequest) => {
@@ -191,3 +206,7 @@ export const updateTrackingStatus = (payload: UpdateTrackingStatusRequest) => {
 export const getSensitiveData = (payload: cardIdRequest) => {
     return api.post('/cards/sensitive-data', payload);
 }
+
+export const updateClient = ( payload: UpdateClientRequest) => {
+  return api.put('/web/client/edit-client', payload);
+};

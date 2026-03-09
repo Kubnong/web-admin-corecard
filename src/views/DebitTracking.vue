@@ -73,7 +73,7 @@
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tracking ID</th>
-                <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Card ID</th>
+                <!-- <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Card ID</th> -->
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">ที่อยู่จัดส่ง</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">จังหวัด</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">รหัสไปรษณีย์</th>
@@ -86,9 +86,9 @@
                 <td class="px-6 py-4">
                   <span class="font-mono text-xs text-gray-500">{{ item.trackingId.substring(0, 8) }}...</span>
                 </td>
-                <td class="px-6 py-4">
+                <!-- <td class="px-6 py-4">
                   <span class="font-mono text-xs text-gray-700">{{ item.cardId.substring(0, 8) }}...</span>
-                </td>
+                </td> -->
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-800">{{ item.address }}</div>
                   <div class="text-xs text-gray-400">{{ item.district }}, {{ item.amphoe }}</div>

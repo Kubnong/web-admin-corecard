@@ -12,7 +12,7 @@
       </router-link>
     </div>
 
-    <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50">
+    <!-- <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50">
       <div class="relative">
         <input
           type="text"
@@ -55,7 +55,7 @@
         type="date"
         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-500"
       />
-    </div>
+    </div> -->
 
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
@@ -128,7 +128,7 @@
                     />
                   </svg>
                 </button>
-                <button
+                <!-- <button
                   class="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md transition-colors"
                   title="Delete"
                 >
@@ -146,7 +146,7 @@
                       d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                     />
                   </svg>
-                </button>
+                </button> -->
               </div>
             </td>
           </tr>
@@ -154,7 +154,7 @@
       </table>
     </div>
 
-    <div
+    <!-- <div
       class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
     >
       <span class="text-sm text-gray-500">Showing 1 to 5 of 12 entries</span>
@@ -184,7 +184,7 @@
           Next
         </button>
       </div>
-    </div>
+    </div> -->
     </div>
   </MainLayout>
 </template>
