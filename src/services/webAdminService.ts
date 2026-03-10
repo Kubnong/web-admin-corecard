@@ -95,6 +95,11 @@ interface imageRequest {
     fileName: string;
 }
 
+interface UpdateTypeDebitStatusRequest {
+    type_debit_id: string;
+    status: string;
+}
+
 export const authorize = (payload: AuthorizeRequest) => {
     return api.post('/web/auth/authorize', payload) // ตรงกับ @PostMapping("/authorize")
 }
@@ -209,4 +214,8 @@ export const getSensitiveData = (payload: cardIdRequest) => {
 
 export const updateClient = ( payload: UpdateClientRequest) => {
   return api.put('/web/client/edit-client', payload);
+};
+
+export const updateTypeDebitStatus = (payload: UpdateTypeDebitStatusRequest) => {
+    return api.post('/cards/type-debits/status', payload);
 };

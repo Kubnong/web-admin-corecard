@@ -12,51 +12,6 @@
       </router-link>
     </div>
 
-    <!-- <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4 bg-gray-50/50">
-      <div class="relative">
-        <input
-          type="text"
-          placeholder="Search Card Name..."
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
-        />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
-
-      <select
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white"
-      >
-        <option value="">All Types</option>
-        <option value="Visa">Visa</option>
-        <option value="MasterCard">MasterCard</option>
-      </select>
-
-      <select
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white"
-      >
-        <option value="">All Status</option>
-        <option value="Active">Active</option>
-        <option value="Inactive">Inactive</option>
-      </select>
-
-      <input
-        type="date"
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm text-gray-500"
-      />
-    </div> -->
-
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
@@ -66,6 +21,7 @@
             <th class="px-6 py-4 font-semibold border-b">Description</th>
             <th class="px-6 py-4 font-semibold border-b">Limit (Max)</th>
             <th class="px-6 py-4 font-semibold border-b">Fee (Annual)</th>
+            <th class="px-6 py-4 font-semibold border-b text-center">Status</th>
             <th class="px-6 py-4 font-semibold border-b text-center">Action</th>
           </tr>
         </thead>
@@ -107,6 +63,15 @@
             </td>
 
             <td class="px-6 py-3 text-center">
+              <span 
+                :class="getStatusBadgeClass(typeDebit.status)"
+                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+              >
+                {{ typeDebit.status === 'active' ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+
+            <td class="px-6 py-3 text-center">
               <div class="flex items-center justify-center gap-2">
                 <button
                   @click="goToDebitTypeDetail(typeDebit.type_debit_id)"
@@ -128,11 +93,17 @@
                     />
                   </svg>
                 </button>
-                <!-- <button
-                  class="text-red-600 hover:text-red-900 bg-red-50 p-1.5 rounded-md transition-colors"
-                  title="Delete"
+                <button
+                  @click="handleToggleStatus(typeDebit)"
+                  :disabled="isTogglingStatus"
+                  :class="typeDebit.status === 'active' 
+                    ? 'text-red-600 hover:text-red-900 bg-red-50' 
+                    : 'text-green-600 hover:text-green-900 bg-green-50'"
+                  class="p-1.5 rounded-md transition-colors disabled:opacity-50"
+                  :title="typeDebit.status === 'active' ? 'Deactivate' : 'Activate'"
                 >
                   <svg
+                    v-if="typeDebit.status === 'active'"
                     xmlns="http://www.w3.org/2000/svg"
                     class="h-4 w-4"
                     fill="none"
@@ -143,57 +114,41 @@
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
                     />
                   </svg>
-                </button> -->
+                  <svg
+                    v-else
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
-    <!-- <div
-      class="px-6 py-4 border-t border-gray-200 flex items-center justify-between"
-    >
-      <span class="text-sm text-gray-500">Showing 1 to 5 of 12 entries</span>
-      <div class="flex gap-1">
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-          disabled
-        >
-          Previous
-        </button>
-        <button class="px-3 py-1 bg-indigo-600 text-white rounded-md text-sm">
-          1
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          2
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          3
-        </button>
-        <button
-          class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          Next
-        </button>
-      </div>
-    </div> -->
     </div>
   </MainLayout>
 </template>
 
 <script setup lang="ts">
-import { getTypeDebits, getImage } from "@/services/webAdminService";
+import { getTypeDebits, getImage, updateTypeDebitStatus } from "@/services/webAdminService";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import MainLayout from "@/components/MainLayout.vue";
+import Swal from "sweetalert2";
 
 const router = useRouter();
 
@@ -210,11 +165,81 @@ interface DebitType {
   default_limit: number;
   max_limit: number;
   expiry_year: number;
+  status: string;
 }
 
-
-
 const typeDebits = ref<DebitType[]>([]);
+const isTogglingStatus = ref(false);
+
+const getStatusBadgeClass = (status: string) => {
+  return status === 'active'
+    ? 'bg-green-100 text-green-800'
+    : 'bg-red-100 text-red-800';
+};
+
+const handleToggleStatus = async (typeDebit: DebitType) => {
+  const newStatus = typeDebit.status === 'active' ? 'inactive' : 'active';
+  const actionText = newStatus === 'inactive' ? 'ปิดการใช้งาน' : 'เปิดใช้งาน';
+  const actionColor = newStatus === 'inactive' ? 'warning' : 'success';
+
+  const result = await Swal.fire({
+    title: `ยืนยันการ${actionText}ประเภทบัตร`,
+    html: `
+      <div class="text-left">
+        <p class="mb-3">คุณแน่ใจหรือไม่ที่จะ<strong>${actionText}</strong>ประเภทบัตรนี้?</p>
+        <div class="bg-gray-50 p-3 rounded-lg mb-3">
+          <p class="font-semibold">${typeDebit.type_debit_name}</p>
+          <p class="text-sm text-gray-600">${typeDebit.type_debit_description}</p>
+        </div>
+        ${newStatus === 'inactive' 
+          ? '<p class="text-sm text-red-600">⚠️ ผู้ใช้จะไม่สามารถสร้างบัตรประเภทนี้ได้อีกต่อไป</p>' 
+          : '<p class="text-sm text-green-600">✅ ผู้ใช้จะสามารถสร้างบัตรประเภทนี้ได้อีกครั้ง</p>'
+        }
+      </div>
+    `,
+    icon: actionColor,
+    showCancelButton: true,
+    confirmButtonColor: newStatus === 'inactive' ? '#d33' : '#3085d6',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: `ยืนยัน${actionText}`,
+    cancelButtonText: 'ยกเลิก',
+    reverseButtons: true
+  });
+
+  if (!result.isConfirmed) return;
+
+  isTogglingStatus.value = true;
+
+  try {
+    await updateTypeDebitStatus({
+      type_debit_id: typeDebit.type_debit_id,
+      status: newStatus
+    });
+
+    // Update local data
+    typeDebit.status = newStatus;
+
+    Swal.fire({
+      title: 'สำเร็จ!',
+      text: `${actionText}ประเภทบัตรเรียบร้อยแล้ว`,
+      icon: 'success',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+  } catch (error: any) {
+    console.error('Error toggling status:', error);
+    
+    Swal.fire({
+      title: 'เกิดข้อผิดพลาด',
+      text: error.response?.data?.message || `ไม่สามารถ${actionText}ได้`,
+      icon: 'error',
+      confirmButtonText: 'ตกลง'
+    });
+  } finally {
+    isTogglingStatus.value = false;
+  }
+};
 
 const fetchTypeDebitsData = async () => {
   try {
@@ -227,11 +252,8 @@ const fetchTypeDebitsData = async () => {
         // ถ้ามีชื่อไฟล์ส่งมา
         if (item.type_debit_image) {
           try {
-            // ยิงไปขอ Base64 จาก Backend
             const imgRes = await getImage({ fileName: item.type_debit_image });
             
-            // นำ Base64 มาประกอบเป็น Data URL และเก็บลงฟิลด์ type_debit_image ที่ Template ใช้แสดงผล
-            // (เช็คด้วยว่ารูปใน MinIO เป็น png หรือ jpeg/jpg)
             item.type_debit_image = `data:image/png;base64,${imgRes.data.imageBase64}`;
           } catch (imgError) {
             console.error(`ไม่สามารถโหลดรูปภาพได้: ${item.fileName}`, imgError);
