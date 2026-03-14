@@ -117,7 +117,7 @@ export const verify2FA = (payload: MfaVerifyRequest) => {
 }
 
 export const getCards = () => {
-    return api.get('/cards')
+    return api.get('/web/cards')
 }
 
 export const getDetailCard = (payload: cardIdRequest) => {

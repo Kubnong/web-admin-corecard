@@ -121,7 +121,7 @@
                 </td>
                 <td class="px-6 py-4">{{ card.name_th }}</td>
                 <td class="px-6 py-4">{{ card.name_eng }}</td>
-                <td class="px-6 py-4 capitalize">{{ card.type_debit_id }}</td>
+                <td class="px-6 py-4 capitalize">{{ card.type_debit_name }}</td>
                 <td class="px-6 py-4">
                   {{ card.virtual ? "Virtual" : "Physical" }}
                 </td>
@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { getCards, searchCustomer } from "@/services/webAdminService"; // ✅ Import searchCustomer เพิ่ม
+import { getCards, searchCustomer } from "@/services/webAdminService";
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import MainLayout from "@/components/MainLayout.vue";
@@ -172,6 +172,7 @@ interface Card {
   expiry: string | Date;
   name_th: string;
   name_eng: string;
+  type_debit_name: string;
 }
 
 // ✅ สร้างตัวแปร State
@@ -187,7 +188,7 @@ const fetchCardsData = async () => {
     const data = response.data;
     cards.value = data;
     displayedCards.value = data; // ✅ เริ่มต้นให้แสดงทั้งหมด
-    console.log(cards.value);
+    console.log(response);
   } catch (error) {
     console.log(error);
   }
