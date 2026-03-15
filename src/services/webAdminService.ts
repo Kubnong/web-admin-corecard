@@ -121,15 +121,15 @@ export const getCards = () => {
 }
 
 export const getDetailCard = (payload: cardIdRequest) => {
-    return api.post('/cards/detail', payload)
+    return api.post('/web/cards/detail', payload)
 }
 
 export const getTypeDebits = () => {
-    return api.get('/cards/type-debits?image_size=image_large')
+    return api.get('/web/cards/type-debits?image_size=image_large')
 }
 
 export const getImage = (payload: imageRequest) => {
-    return api.post('/cards/image', payload);
+    return api.post('/web/cards/image', payload);
 }
 
 export const getHistoryLogs = (payload: cardIdRequest) => {
@@ -137,11 +137,7 @@ export const getHistoryLogs = (payload: cardIdRequest) => {
 }
 
 export const addTypeDebit = (payload: FormData) => {
-    return api.post('/cards/type-debits', payload, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
+    return api.post('/web/cards/type-debits', payload);
 }
 
 export const changePassword = (payload: ChangePasswordRequest) => {
@@ -161,11 +157,11 @@ export const resetPassword = (payload: ResetPasswordRequest) => {
 }
 
 export const updateDebitType = (payload: AddDebitTypeRequest) => {
-  return api.put('/cards/type-debits/detail', payload);
+  return api.put('/web/cards/type-debits/detail', payload);
 };
 
 export const getTypeDebitById = (payload: TypeDebitIdRequest) => {
-    return api.post('/cards/type-debits/detail?image_size=all', payload);
+    return api.post('/web/cards/type-debits/detail?image_size=all', payload);
 }
 
 export const searchCustomer = (payload: SearchCustomerRequest) => {
@@ -185,11 +181,7 @@ export const getClientById = (payload: ClientIdRequest) => {
 };
 
 export const uploadCsr = (formData: FormData) => {
-    return api.post('/web/client/add-certificate', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data' 
-        }
-    });
+    return api.post('/web/client/add-certificate', formData);
 };
 
 export const getClientCertificateById = (payload: ClientIdRequest) => {
@@ -201,15 +193,15 @@ export const refreshAccessToken = (payload: RefreshTokenRequest) => {
 };
 
 export const getAllTrackingStatus = () => {
-    return api.get('/cards/tracking-status');
+    return api.get('/web/cards/tracking-status');
 };
 
 export const updateTrackingStatus = (payload: UpdateTrackingStatusRequest) => {
-    return api.post('/cards/tracking-status', payload);
+    return api.post('/web/cards/tracking-status', payload);
 };
 
 export const getSensitiveData = (payload: cardIdRequest) => {
-    return api.post('/cards/sensitive-data', payload);
+    return api.post('/web/cards/sensitive-data', payload);
 }
 
 export const updateClient = ( payload: UpdateClientRequest) => {
@@ -217,5 +209,5 @@ export const updateClient = ( payload: UpdateClientRequest) => {
 };
 
 export const updateTypeDebitStatus = (payload: UpdateTypeDebitStatusRequest) => {
-    return api.post('/cards/type-debits/status', payload);
+    return api.post('/web/cards/type-debits/status', payload);
 };

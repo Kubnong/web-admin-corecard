@@ -1,109 +1,170 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
+import { generateKeyPair, exportJWK, compactDecrypt, importSPKI, CompactEncrypt } from 'jose'
 
-const apiEndpoint = import.meta.env.VITE_API_BASE_URL;
+// ─── Type augmentation ────────────────────────────────────────────────────────
+declare module 'axios' {
+    export interface InternalAxiosRequestConfig {
+        _retry?: boolean
+        _privateKey?: CryptoKey  // ✅ เปลี่ยนเป็น CryptoKey
+    }
+}
 
+const apiEndpoint = import.meta.env.VITE_API_BASE_URL
+
+// ─── Session Key Pair (สร้างครั้งเดียวตลอด Session) ──────────────────────────
+// Public Key → ส่งไปทุก Request ให้ Backend เอาไป Encrypt Response กลับมา
+// Private Key → เก็บใน RAM เพื่อถอดรหัส Response
+let sessionKeys: { publicKeyJwk: string; privateKey: CryptoKey } | null = null
+
+const getSessionKeys = async () => {
+    if (sessionKeys) return sessionKeys
+    const { publicKey, privateKey } = await generateKeyPair('RSA-OAEP-256', { modulusLength: 2048 })
+    sessionKeys = { publicKeyJwk: JSON.stringify(await exportJWK(publicKey)), privateKey }
+    return sessionKeys
+}
+
+// ─── Backend Static Public Key (สำหรับ Encrypt ขาไป) ─────────────────────────
+// ค่าใน .env: VITE_BACKEND_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
+let backendPublicKey: CryptoKey | null = null
+
+const getBackendPublicKey = async (): Promise<CryptoKey> => {
+    if (backendPublicKey) return backendPublicKey
+    const rawKey = (import.meta.env.VITE_BACKEND_PUBLIC_KEY as string)
+        .replace(/\\n/g, '\n').trim()
+    backendPublicKey = await importSPKI(rawKey, 'RSA-OAEP-256')
+    return backendPublicKey
+}
+
+// ─── Auth endpoints ที่ไม่เข้ารหัส ───────────────────────────────────────────
+const isAuthPath = (url?: string) =>
+    ['/web/auth/authorize', '/web/auth/token', '/web/auth/refresh',
+     '/web/auth/2fa/', '/web/auth/send-otp', '/web/auth/verify-otp',
+     '/web/auth/reset-password']
+    .some(p => url?.includes(p))
+
+// ─── Axios Instance ───────────────────────────────────────────────────────────
 const api = axios.create({
-    baseURL : apiEndpoint,
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    timeout: 10000
+    baseURL: apiEndpoint,
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 10000,
 })
 
-api.interceptors.request.use((config) => {
+// ─── Request Interceptor ──────────────────────────────────────────────────────
+api.interceptors.request.use(async (config) => {
     const token = localStorage.getItem('accessToken')
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`
+    if (token) config.headers.Authorization = `Bearer ${token}`
+
+    if (isAuthPath(config.url)) return config
+
+    // แนบ Ephemeral Public Key → Backend จะเอาไป Encrypt Response
+    const keys = await getSessionKeys()
+    config.headers['X-Client-Public-Key'] = keys.publicKeyJwk
+    config._privateKey = keys.privateKey
+
+    // Encrypt Request Body ด้วย Backend Static Public Key
+    if (config.data) {
+        if (config.data instanceof FormData) {
+            // 🌟 1. ถ้าเป็นไฟล์ (FormData) ให้ลบ Content-Type ทิ้ง! 
+            // เพื่อให้เบราว์เซอร์จัดการใส่ multipart/form-data; boundary=... ให้อัตโนมัติ
+            if (config.headers && typeof config.headers.delete === 'function') {
+                config.headers.delete('Content-Type');
+            } else {
+                delete config.headers['Content-Type'];
+            }
+        } else {
+            // 🌟 2. ถ้าเป็น JSON ปกติ ให้เข้ารหัสเป็น JWE ตามมาตรฐาน E2EE
+            const backendKey = await getBackendPublicKey()
+            const jwe = await new CompactEncrypt(
+                new TextEncoder().encode(JSON.stringify(config.data))
+            )
+                .setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' })
+                .encrypt(backendKey)
+
+            config.data = jwe
+            config.headers['Content-Type'] = 'text/plain'
+        }
     }
+
     return config
 })
 
-// --- ตัวแปรสำหรับระบบ Lock ---
-let isRefreshing = false;
-let failedQueue: Array<{ resolve: (value?: unknown) => void, reject: (reason?: any) => void }> = [];
+// ─── Queue สำหรับ Refresh Token ───────────────────────────────────────────────
+let isRefreshing = false
+let failedQueue: Array<{ resolve: (v?: unknown) => void; reject: (r?: unknown) => void }> = []
 
-// ฟังก์ชันสำหรับจัดการ Request ที่ค้างอยู่
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
-    failedQueue.forEach(prom => {
-        if (error) {
-            prom.reject(error);
-        } else {
-            prom.resolve(token);
-        }
-    });
-    failedQueue = [];
-};
+const processQueue = (error: unknown, token: string | null = null) => {
+    failedQueue.forEach(p => error ? p.reject(error) : p.resolve(token))
+    failedQueue = []
+}
 
+// ─── Response Interceptor ─────────────────────────────────────────────────────
 api.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    async (response: AxiosResponse) => {
+        const config = response.config as InternalAxiosRequestConfig
+
+        // ถอดรหัส JWE Response อัตโนมัติ
+        if (config._privateKey && typeof response.data === 'string' && response.data.startsWith('eyJ')) {
+            try {
+                const { plaintext } = await compactDecrypt(response.data, config._privateKey)
+                response.data = JSON.parse(new TextDecoder().decode(plaintext))
+            } catch {
+                return Promise.reject(new Error('Response decryption failed'))
+            }
+        }
+        return response
+    },
+
     async (error: AxiosError) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const originalRequest = error.config as InternalAxiosRequestConfig
 
-        // 🟢 เพิ่มโค้ดบรรทัดนี้: ตรวจสอบว่าเป็น API ที่เกี่ยวกับการ Login หรือ Auth หรือไม่
-        const isAuthPath = originalRequest.url?.includes('/web/auth/authorize') || 
-                           originalRequest.url?.includes('/web/auth/token') || 
-                           originalRequest.url?.includes('/web/auth/refresh') || 
-                           originalRequest.url?.includes('/web/auth/2fa/');
-
-        // 🟢 แก้ไขเงื่อนไข: เพิ่ม !isAuthPath เข้าไป เพื่อบอกว่า "ถ้าเป็นหน้า Login ห้ามทำ Refresh Token เด็ดขาด!"
-        if (error.response && (error.response.status === 401 || error.response.status === 403) && !isAuthPath && originalRequest && !originalRequest._retry) {
-            
+        if (
+            error.response &&
+            [401, 403].includes(error.response.status) &&
+            !isAuthPath(originalRequest.url) &&
+            !originalRequest._retry
+        ) {
             if (isRefreshing) {
-                return new Promise(function (resolve, reject) {
-                    failedQueue.push({ resolve, reject });
-                })
-                .then(token => {
-                    originalRequest.headers.Authorization = `Bearer ${token}`;
-                    return api(originalRequest);
-                })
-                .catch(err => Promise.reject(err));
+                return new Promise((resolve, reject) => failedQueue.push({ resolve, reject }))
+                    .then(token => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`
+                        return api(originalRequest)
+                    })
+                    .catch(err => Promise.reject(err))
             }
 
-            originalRequest._retry = true;
-            isRefreshing = true;
+            originalRequest._retry = true
+            isRefreshing = true
 
             try {
-                const refreshToken = localStorage.getItem('refreshToken');
-                if (!refreshToken) throw new Error("No refresh token available");
+                const refreshToken = localStorage.getItem('refreshToken')
+                if (!refreshToken) throw new Error('No refresh token')
 
-                console.log("Attempting Refresh Token...");
+                // ใช้ axios ตรง (ไม่ผ่าน instance) เพื่อหลีกเลี่ยง interceptor loop
+                const res = await axios.post(`${apiEndpoint}/web/auth/refresh`, {
+                    refresh_token: refreshToken,
+                })
+                const newToken = res.data.access_token
+                if (!newToken) throw new Error('No access token in response')
 
-                const response = await axios.post(`${apiEndpoint}/web/auth/refresh`, {
-                    refresh_token: refreshToken
-                });
+                localStorage.setItem('accessToken', newToken)
+                api.defaults.headers.common.Authorization = `Bearer ${newToken}`
+                originalRequest.headers.Authorization = `Bearer ${newToken}`
 
-                const newToken = response.data.access_token; 
-
-                if (newToken) {
-                    localStorage.setItem('accessToken', newToken);
-                    
-                    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-                    processQueue(null, newToken);
-                    
-                    return api(originalRequest);
-                } else {
-                    throw new Error("No access token in response");
-                }
+                processQueue(null, newToken)
+                return api(originalRequest)
 
             } catch (err) {
-                console.error("Refresh failed:", err);
-                const axiosError = err as AxiosError;
-                processQueue(axiosError, null);
-                
-                localStorage.clear();
-                window.location.href = '/login';
-                return Promise.reject(err);
+                processQueue(err)
+                localStorage.clear()
+                window.location.href = '/login'
+                return Promise.reject(err)
             } finally {
-                isRefreshing = false;
+                isRefreshing = false
             }
         }
 
-        // 🟢 ถ้าเป็น Error จากหน้า Login (เช่น totp_required หรือ รหัสผิด) มันจะหลุดมาตรงนี้
-        // และคืนค่า Error กลับไปให้ Login.vue จัดการเปิดหน้าต่าง OTP ต่อได้ทันที
-        return Promise.reject(error);
+        return Promise.reject(error)
     }
-);
+)
 
-export default api;
+export default api

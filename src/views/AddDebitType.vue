@@ -338,7 +338,7 @@ const handleImageUpload = (event: Event, index: number) => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewImages.value[index] = e.target?.result as string;
+      formData.value.images[index] = e.target?.result as string;
     };
     reader.onerror = () => {
       errorMessage.value = 'เกิดข้อผิดพลาดในการอ่านไฟล์';
