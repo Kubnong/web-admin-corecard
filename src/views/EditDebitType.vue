@@ -140,7 +140,7 @@
               />
               <span class="text-sm text-gray-700">Virtual</span>
             </label>
-            <label class="flex items-center gap-2 cursor-pointer">
+            <!-- <label class="flex items-center gap-2 cursor-pointer">
               <input 
                 type="radio" 
                 v-model="formData.can_physical" 
@@ -148,7 +148,7 @@
                 class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
               />
               <span class="text-sm text-gray-700">Physical</span>
-            </label>
+            </label> -->
           </div>
         </div>
 
@@ -265,7 +265,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getTypeDebitById, updateDebitType } from '@/services/webAdminService';
+import { getTypeDebitById, updateDebitType, getImage } from '@/services/webAdminService';
 import MainLayout from '@/components/MainLayout.vue';
 import Swal from 'sweetalert2';
 
@@ -308,6 +308,20 @@ const isLoadingData = ref(true);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+const loadBase64Image = async (fileName: string) => {
+  if (!fileName) return '';
+  try {
+    const res = await getImage({ fileName });
+    if (res.data && res.data.imageBase64) {
+      return `data:image/png;base64,${res.data.imageBase64}`;
+    }
+    return '';
+  } catch (error) {
+    console.error(`Failed to load image: ${fileName}`, error);
+    return '';
+  }
+};
+
 // --- 1. Fetch Data Logic ---
 const fetchData = async () => {
     const typeId = history.state.type_debit_id;
@@ -330,9 +344,15 @@ const fetchData = async () => {
                 ...data,
                 images: ['', '', ''] // Reset images array
             };
-            formData.value.images[0] = data.image_small || '';
-            formData.value.images[1] = data.image_medium || '';
-            formData.value.images[2] = data.image_large || '';;
+            if (data.image_small) {
+                formData.value.images[0] = await loadBase64Image(data.image_small);
+            }
+            if (data.image_medium) {
+                formData.value.images[1] = await loadBase64Image(data.image_medium);
+            }
+            if (data.image_large) {
+                formData.value.images[2] = await loadBase64Image(data.image_large);
+            }
           
         }
     } catch (error) {

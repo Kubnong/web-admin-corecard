@@ -4,9 +4,9 @@
     <aside
       class="w-64 bg-gray-900 text-white flex flex-col flex-shrink-0 transition-all duration-300"
     >
-      <div class="p-6 text-xl font-bold flex items-center gap-2">
+      <!-- <div class="p-6 text-xl font-bold flex items-center gap-2">
         Admin Dashboard
-      </div>
+      </div> -->
 
       <nav class="flex-1 mt-4">
         <ul>

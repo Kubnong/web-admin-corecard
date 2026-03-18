@@ -301,7 +301,7 @@
                 class="block w-full px-3 py-2 border rounded-md"
               >
                 <option value="MTF">Sandbox (MTF)</option>
-                <option value="PROD">Production</option>
+                <!-- <option value="PROD">Production</option> -->
               </select>
             </div>
 

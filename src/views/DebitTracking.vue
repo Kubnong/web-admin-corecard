@@ -29,7 +29,7 @@
             <input
               v-model="searchText"
               type="text"
-              placeholder="ค้นหาด้วย Card ID หรือ ที่อยู่..."
+              placeholder="ค้นหาด้วย ชื่อ หรือ ที่อยู่จัดส่ง..."
               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm"
             />
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,8 +72,8 @@
           <table v-else class="w-full text-left">
             <thead class="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Tracking ID</th>
-                <!-- <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Card ID</th> -->
+                <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">Type debit name</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">ที่อยู่จัดส่ง</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">จังหวัด</th>
                 <th class="px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">รหัสไปรษณีย์</th>
@@ -84,11 +84,11 @@
             <tbody class="divide-y divide-gray-100">
               <tr v-for="item in filteredData" :key="item.trackingId" class="hover:bg-gray-50 transition-colors">
                 <td class="px-6 py-4">
-                  <span class="font-mono text-xs text-gray-500">{{ item.trackingId.substring(0, 8) }}...</span>
+                  <span class="font-mono text-xs text-gray-500">{{ item.nameTh }}</span>
                 </td>
-                <!-- <td class="px-6 py-4">
-                  <span class="font-mono text-xs text-gray-700">{{ item.cardId.substring(0, 8) }}...</span>
-                </td> -->
+                <td class="px-6 py-4">
+                  <span class="font-mono text-xs text-gray-700">{{ item.typeDebitName }}</span>
+                </td>
                 <td class="px-6 py-4">
                   <div class="text-sm text-gray-800">{{ item.address }}</div>
                   <div class="text-xs text-gray-400">{{ item.district }}, {{ item.amphoe }}</div>
@@ -153,6 +153,8 @@ import { getAllTrackingStatus, updateTrackingStatus } from '@/services/webAdminS
 
 interface TrackingItem {
   trackingId: string;
+  nameTh: string;
+  typeDebitName: string;
   cardId: string;
   address: string;
   district: string;
@@ -209,8 +211,8 @@ const handleStatusChange = async (item: TrackingItem) => {
 const filteredData = computed(() => {
   return trackingList.value.filter(item => {
     const matchSearch = !searchText.value ||
-      item.cardId.toLowerCase().includes(searchText.value.toLowerCase()) ||
-      item.trackingId.toLowerCase().includes(searchText.value.toLowerCase()) ||
+      item.nameTh.toLowerCase().includes(searchText.value.toLowerCase()) ||
+      item.typeDebitName.toLowerCase().includes(searchText.value.toLowerCase()) ||
       item.address?.toLowerCase().includes(searchText.value.toLowerCase()) ||
       item.province?.toLowerCase().includes(searchText.value.toLowerCase());
     const matchStatus = !filterStatus.value || item.deliveryStatus === filterStatus.value;

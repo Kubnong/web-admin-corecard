@@ -1,12 +1,12 @@
 <template>
     <div class="min-h-screen bg-slate-50 text-slate-800">
-        <header class="bg-white border-b sticky top-0 z-50">
+        <header class="bg-gray-900 border-b sticky top-0 z-50">
             <div class="w-full max-w-[1920px] mx-auto flex items-center justify-between p-4">
-                <h1 class="text-lg font-semibold">Web Admin Corecard</h1>
+                <h1 class="text-lg font-extrabold text-white pl-5">Web Admin Corecard</h1>
                 <nav class="flex items-center gap-3">
                     <div v-if="userEmail" class="flex items-center gap-4">
                         <div class="text-right">
-                            <p class="text-sm font-semibold text-gray-900">{{ userEmail }}</p>
+                            <p class="text-sm font-semibold text-white">{{ userEmail }}</p>
                         </div>
                         <button 
                             @click="handleLogout"

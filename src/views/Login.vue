@@ -71,6 +71,28 @@ const errorMessage = ref('');
 
 // เก็บ PKCE ไว้ใช้ต่อเนื่อง (เพราะต้องใช้ code_verifier เดิมตอนแลก Token)
 let codeVerifier = '';
+let savedState = '';
+let savedNonce = '';
+
+const decodeJWT = (token: string): any => {
+  try {
+    const base64Url = token.split(".")[1];
+    if (!base64Url) {
+      throw new Error("Invalid token format");
+    }
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(""),
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    return null;
+  }
+};
 
 const handleLoginFlow = async () => {
     isLoading.value = true;
@@ -78,19 +100,21 @@ const handleLoginFlow = async () => {
 
     try {
         // สร้าง PKCE ใหม่เฉพาะตอนเริ่ม Flow แรก (ยังไม่มี OTP)
-        codeVerifier = generateCodeVerifier();
+        if (!showOtpInput.value) {
+            codeVerifier = generateCodeVerifier();
+            savedState = randomString(16);
+            savedNonce = randomString(16);
+        }
         
         const codeChallenge = generateCodeChallenge(codeVerifier);
-        const state = randomString(16);
-        const nonce = randomString(16);
 
         // Prepare Payload
         const payload: any = {
             email: email.value,
             password: password.value,
             code_challenge: codeChallenge,
-            state: state,
-            nonce: nonce
+            state: savedState,
+            nonce: savedNonce
         };
 
         // ถ้ามี OTP ให้แนบไปด้วย (รอบที่ 2)
@@ -99,6 +123,11 @@ const handleLoginFlow = async () => {
         }
 
         const authResponse = await authorize(payload);
+
+        const returnedState = authResponse.data.state;
+        if (returnedState !== savedState) {
+            throw new Error("Security Error: State validation failed! (Possible CSRF Attack)");
+        }
         
         const authCode = authResponse.data.auth_code;
 
@@ -113,6 +142,11 @@ const handleLoginFlow = async () => {
         });
 
         const { access_token, id_token, refresh_token } = tokenResponse.data;
+
+        const decodedIdToken = decodeJWT(id_token);
+        if (!decodedIdToken || decodedIdToken.nonce !== savedNonce) {
+            throw new Error("Security Error: Nonce validation failed! (Possible Token Replay Attack)");
+        }
 
         localStorage.setItem('accessToken', access_token);
         localStorage.setItem('idToken', id_token);

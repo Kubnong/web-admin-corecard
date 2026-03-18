@@ -54,7 +54,7 @@ api.interceptors.request.use(async (config) => {
     const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
 
-    if (isAuthPath(config.url)) return config
+    // if (isAuthPath(config.url)) return config
 
     // แนบ Ephemeral Public Key → Backend จะเอาไป Encrypt Response
     const keys = await getSessionKeys()
@@ -66,11 +66,7 @@ api.interceptors.request.use(async (config) => {
         if (config.data instanceof FormData) {
             // 🌟 1. ถ้าเป็นไฟล์ (FormData) ให้ลบ Content-Type ทิ้ง! 
             // เพื่อให้เบราว์เซอร์จัดการใส่ multipart/form-data; boundary=... ให้อัตโนมัติ
-            if (config.headers && typeof config.headers.delete === 'function') {
-                config.headers.delete('Content-Type');
-            } else {
-                delete config.headers['Content-Type'];
-            }
+            delete config.headers['Content-Type'];
         } else {
             // 🌟 2. ถ้าเป็น JSON ปกติ ให้เข้ารหัสเป็น JWE ตามมาตรฐาน E2EE
             const backendKey = await getBackendPublicKey()
@@ -140,7 +136,7 @@ api.interceptors.response.use(
                 if (!refreshToken) throw new Error('No refresh token')
 
                 // ใช้ axios ตรง (ไม่ผ่าน instance) เพื่อหลีกเลี่ยง interceptor loop
-                const res = await axios.post(`${apiEndpoint}/web/auth/refresh`, {
+                const res = await api.post('/web/auth/refresh', {
                     refresh_token: refreshToken,
                 })
                 const newToken = res.data.access_token
