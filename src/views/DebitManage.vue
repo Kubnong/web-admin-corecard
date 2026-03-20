@@ -15,12 +15,6 @@
             <div>{{ activeCount }}</div>
           </div>
 
-          <!-- <div class="bg-orange-500 text-white rounded-xl p-6 shadow">
-            <div class="text-3xl font-bold">In Transit</div>
-            <div>อยู่ระหว่างจัดส่ง</div>
-            <div>{{ pendingCount }}</div>
-          </div> -->
-
           <div class="bg-red-500 text-white rounded-xl p-6 shadow">
             <div class="text-3xl font-bold">Blocked</div>
             <div>ถูกระงับ/อายัด</div>
@@ -60,7 +54,7 @@
             <button
               @click="handleSearch"
               :disabled="isSearching"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 h-[42px] disabled:opacity-50"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2 h-10.5 disabled:opacity-50"
             >
               <svg
                 v-if="!isSearching"
@@ -83,7 +77,7 @@
 
             <button
               @click="resetFilter"
-              class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors h-[42px]"
+              class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors h-10.5"
             >
               รีเซ็ต
             </button>
@@ -129,7 +123,7 @@
                 <td class="px-6 py-4">
                   <div
                     :class="getStatusClass(card.status)"
-                    class="px-3 py-1 rounded text-xs w-fit text-center min-w-[80px]"
+                    class="px-3 py-1 rounded text-xs w-fit text-center min-w-20"
                   >
                     {{ card.status }}
                   </div>
@@ -167,7 +161,7 @@ interface Card {
   last_digits: string;
   virtual: boolean;
   current_spending_limit: number;
-  created_at: string | Date; // แนะนำให้รองรับ String จาก JSON
+  created_at: string | Date;
   status: string;
   expiry: string | Date;
   name_th: string;
@@ -175,9 +169,8 @@ interface Card {
   type_debit_name: string;
 }
 
-// ✅ สร้างตัวแปร State
-const cards = ref<Card[]>([]); // เก็บข้อมูลทั้งหมด (Master Data)
-const displayedCards = ref<Card[]>([]); // เก็บข้อมูลที่ใช้แสดงผลจริง (Filtered Data)
+const cards = ref<Card[]>([]);
+const displayedCards = ref<Card[]>([]); 
 const searchFirstName = ref("");
 const searchLastName = ref("");
 const isSearching = ref(false);
@@ -187,16 +180,14 @@ const fetchCardsData = async () => {
     const response = await getCards();
     const data = response.data;
     cards.value = data;
-    displayedCards.value = data; // ✅ เริ่มต้นให้แสดงทั้งหมด
+    displayedCards.value = data;
     console.log(response);
   } catch (error) {
     console.log(error);
   }
 };
 
-// ✅ ฟังก์ชันค้นหา
 const handleSearch = async () => {
-  // ถ้าช่องค้นหาว่างทั้งคู่ ให้รีเซ็ตกลับไปแสดงทั้งหมด
   if (!searchFirstName.value.trim() && !searchLastName.value.trim()) {
     resetFilter();
     return;
@@ -204,23 +195,19 @@ const handleSearch = async () => {
 
   isSearching.value = true;
   try {
-    // 1. เรียก API ค้นหา User
     const payload = {
       first_name: searchFirstName.value || undefined,
       last_name: searchLastName.value || undefined,
     };
 
     const response = await searchCustomer(payload);
-    const foundUsers = response.data; // List ของ User ที่เจอ
+    const foundUsers = response.data; 
 
     if (foundUsers.length === 0) {
-      displayedCards.value = []; // ถ้าไม่เจอ User เลย ก็ไม่ต้องโชว์การ์ด
+      displayedCards.value = []; 
     } else {
-      // 2. ดึง ID ของ User ที่เจอทั้งหมดออกมา
-      // หมายเหตุ: เช็ค field ID ให้ตรงกับ Backend (เช่น customerUserId หรือ id)
       const foundUserIds = foundUsers.map((u: any) => u.customerUserId || u.id);
 
-      // 3. กรองการ์ด ให้เหลือเฉพาะใบที่เป็นของ User กลุ่มนี้
       displayedCards.value = cards.value.filter((card) =>
         foundUserIds.includes(card.holder_id),
       );
@@ -233,11 +220,10 @@ const handleSearch = async () => {
   }
 };
 
-// ✅ ฟังก์ชันรีเซ็ต
 const resetFilter = () => {
   searchFirstName.value = "";
   searchLastName.value = "";
-  displayedCards.value = cards.value; // คืนค่าทั้งหมดจาก Master Data
+  displayedCards.value = cards.value;
 };
 
 const goToDetail = (card_id: string) => {
@@ -259,9 +245,7 @@ const formatDate = (dateInput: string | Date) => {
   });
 };
 
-// Helper สำหรับแต่งสี Status
 const getStatusClass = (status: string) => {
-  // ใส่ Logic สีตามต้องการได้เลย
   return status === "active"
     ? "bg-green-100 text-green-800"
     : status === "frozen"
@@ -273,17 +257,11 @@ const activeCount = computed(
   () => cards.value.filter((card) => card.status === "active").length,
 );
 
-// Blocked (frozen / locked)
 const blockedCount = computed(
   () =>
     cards.value.filter(
       (card) => card.status === "frozen" || card.status === "locked",
     ).length,
-);
-
-// Pending (เช่น pending / shipping แล้วแต่ backend)
-const pendingCount = computed(
-  () => cards.value.filter((card) => card.status === "pending").length,
 );
 
 onMounted(() => {

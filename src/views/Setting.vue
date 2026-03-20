@@ -1,10 +1,7 @@
 <template>
   <MainLayout>
     <div class="flex min-h-screen bg-gray-50 font-sans text-gray-800">
-      <!-- Main Content -->
       <main class="flex-1 p-8 overflow-y-auto">
-        <!-- Top Bar -->
-        <!-- Settings Content -->
         <div class="max-w-2xl mx-auto">
           <h1 class="text-2xl font-bold text-gray-900 mb-8">Setting</h1>
 
@@ -14,7 +11,6 @@
             </h2>
 
             <form @submit.prevent="handleChangePassword" class="space-y-6">
-              <!-- Email (Read-only) -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2"
                   >Email</label
@@ -27,7 +23,6 @@
                 />
               </div>
 
-              <!-- Old Password -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2"
                   >Old Password</label
@@ -85,7 +80,6 @@
                 </div>
               </div>
 
-              <!-- New Password -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2"
                   >New Password</label
@@ -146,7 +140,6 @@
                 </p>
               </div>
 
-              <!-- Confirm Password -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2"
                   >Confirm Password</label
@@ -204,7 +197,6 @@
                 </div>
               </div>
 
-              <!-- Error Message -->
               <div
                 v-if="errorMessage"
                 class="p-4 bg-red-50 border border-red-200 rounded-lg"
@@ -212,7 +204,6 @@
                 <p class="text-sm text-red-600">{{ errorMessage }}</p>
               </div>
 
-              <!-- Success Message -->
               <div
                 v-if="successMessage"
                 class="p-4 bg-green-50 border border-green-200 rounded-lg"
@@ -220,7 +211,6 @@
                 <p class="text-sm text-green-600">{{ successMessage }}</p>
               </div>
 
-              <!-- Action Buttons -->
               <div class="flex justify-end gap-4 pt-4">
                 <button
                   type="button"
@@ -316,7 +306,6 @@ const decodeJWT = (token: string): any => {
   }
 };
 
-// Load email from id_token
 onMounted(() => {
   const idToken = localStorage.getItem("idToken");
   console.log(idToken);
@@ -344,22 +333,18 @@ const handleChangePassword = async () => {
   successMessage.value = "";
 
   try {
-    // Validate passwords match
     if (formData.value.newPassword !== formData.value.confirmPassword) {
       throw new Error("รหัสผ่านใหม่ไม่ตรงกัน");
     }
 
-    // Validate password length
     if (formData.value.newPassword.length < 8) {
       throw new Error("รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร");
     }
-
-    // Validate old password is different from new password
+    
     if (formData.value.oldPassword === formData.value.newPassword) {
       throw new Error("รหัสผ่านใหม่ต้องไม่เหมือนกับรหัสผ่านเก่า");
     }
 
-    // Prepare payload
     const payload = {
       email: formData.value.email,
       old_password: formData.value.oldPassword,
@@ -370,12 +355,10 @@ const handleChangePassword = async () => {
 
     successMessage.value = "เปลี่ยนรหัสผ่านสำเร็จ! กำลังออกจากระบบ...";
 
-    // Clear form
     formData.value.oldPassword = "";
     formData.value.newPassword = "";
     formData.value.confirmPassword = "";
 
-    // Logout after 2 seconds
     setTimeout(() => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("idToken");
@@ -404,7 +387,6 @@ const handleCancel = () => {
 </script>
 
 <style scoped>
-/* Optional: Add smooth transitions */
 input,
 button {
   transition: all 0.2s ease;

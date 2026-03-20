@@ -2,12 +2,8 @@
   <div class="flex min-h-screen bg-gray-50 font-sans text-gray-800">
     <!-- Sidebar -->
     <aside
-      class="w-64 bg-gray-900 text-white flex flex-col flex-shrink-0 transition-all duration-300"
+      class="w-64 bg-gray-900 text-white flex flex-col shrink-0 transition-all duration-300"
     >
-      <!-- <div class="p-6 text-xl font-bold flex items-center gap-2">
-        Admin Dashboard
-      </div> -->
-
       <nav class="flex-1 mt-4">
         <ul>
           <li class="mb-1">
@@ -140,18 +136,15 @@
       </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto">
-
-      <!-- Content Slot -->
       <slot></slot>
     </main>
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
-import { computed } from "vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -161,13 +154,11 @@ const isActive = (path: string) => {
 };
 
 const handleLogout = () => {
-  // Add logout logic here
   router.push("/login");
 };
 </script>
 
 <style scoped>
-/* Optional: Add smooth transitions */
 main {
   transition: all 0.2s ease;
 }

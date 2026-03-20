@@ -103,7 +103,6 @@
             </div>
           </div>
 
-          <!-- Card Name -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">ชื่อบัตร</label>
             <input 
@@ -115,7 +114,6 @@
             />
           </div>
 
-          <!-- Description -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">คำอธิบาย</label>
             <textarea 
@@ -127,7 +125,6 @@
             ></textarea>
           </div>
 
-          <!-- Physical Card Option -->
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-3">ประเภทบัตร</label>
             <div class="flex items-center gap-6">
@@ -140,19 +137,9 @@
                 />
                 <span class="text-sm text-gray-700">Virtual</span>
               </label>
-              <!-- <label class="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="radio" 
-                  v-model="formData.can_physical" 
-                  :value="true"
-                  class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-                />
-                <span class="text-sm text-gray-700">Physical</span>
-              </label> -->
             </div>
           </div>
 
-          <!-- Fees Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">ค่าธรรมเนียมแรกเข้า</label>
@@ -194,7 +181,6 @@
             </div>
           </div>
 
-          <!-- Limits Row -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">วงเงินเริ่มต้น</label>
@@ -236,17 +222,14 @@
             </div>
           </div>
 
-          <!-- Error Message -->
           <div v-if="errorMessage" class="p-4 bg-red-50 border border-red-200 rounded-lg">
             <p class="text-sm text-red-600">{{ errorMessage }}</p>
           </div>
 
-          <!-- Success Message -->
           <div v-if="successMessage" class="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p class="text-sm text-green-600">{{ successMessage }}</p>
           </div>
 
-          <!-- Action Buttons -->
           <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
             <button 
               type="button"
@@ -314,12 +297,10 @@ const errorMessage = ref('');
 const successMessage = ref('');
 
 const imageFiles = ref<{ [key: number]: File | null }>({
-  0: null, // fileSmall
-  1: null, // fileMedium
-  2: null  // fileLarge
+  0: null, 
+  1: null, 
+  2: null  
 });
-
-const previewImages = ref<string[]>(['', '', '']);
 
 // Convert image to base64
 const handleImageUpload = (event: Event, index: number) => {
@@ -353,7 +334,6 @@ const handleSubmit = async () => {
   successMessage.value = '';
 
   try {
-    // Validate
     if (formData.value.min_limit > formData.value.default_limit) {
       throw new Error('วงเงินขั้นต่ำต้องไม่มากกว่าวงเงินเริ่มต้น');
     }

@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-slate-50 text-slate-800">
         <header class="bg-gray-900 border-b sticky top-0 z-50">
-            <div class="w-full max-w-[1920px] mx-auto flex items-center justify-between p-4">
+            <div class="w-full max-w-480 mx-auto flex items-center justify-between p-4">
                 <h1 class="text-lg font-extrabold text-white pl-5">Web Admin Corecard</h1>
                 <nav class="flex items-center gap-3">
                     <div v-if="userEmail" class="flex items-center gap-4">
@@ -23,7 +23,7 @@
             </div>
         </header>
 
-        <main class="w-full max-w-[1920px] mx-auto">
+        <main class="w-full max-w-480 mx-auto">
             <router-view />
         </main>
     </div>
@@ -36,7 +36,6 @@ import { ref, onMounted } from 'vue'
 const router = useRouter()
 const userEmail = ref<string>('')
 
-// Decode JWT to get email
 const decodeJWT = (token: string): any => {
   try {
     const base64Url = token.split(".")[1];
@@ -57,7 +56,6 @@ const decodeJWT = (token: string): any => {
   }
 };
 
-// Load email from idToken on mount
 onMounted(() => {
   const idToken = localStorage.getItem("idToken");
   

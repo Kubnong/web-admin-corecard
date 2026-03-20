@@ -1,9 +1,8 @@
 <template>
   <div class="min-h-screen w-full bg-[#E2E9FF] flex items-center justify-center p-4 font-sans">
-    <div class="bg-white rounded-[5px] shadow-xl w-full max-w-[458px] relative overflow-hidden flex flex-col items-center pt-[33px] pb-10 px-8">
+    <div class="bg-white rounded-[5px] shadow-xl w-full max-w-[458px] relative overflow-hidden flex flex-col items-center pt-8.25 pb-10 px-8">
       <h1 class="text-black text-[16px] font-normal mb-2 text-center">ลืมรหัสผ่าน</h1>
       
-      <!-- Progress indicator -->
       <div class="flex items-center justify-center gap-2 mb-8">
         <div :class="['w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors',
           currentStep >= 1 ? 'bg-[#4F39F6] text-white' : 'bg-gray-200 text-gray-500']">
@@ -23,7 +22,6 @@
 
       <form @submit.prevent="handleSubmit" class="w-full space-y-6">
         
-        <!-- Step 1: Enter Email -->
         <div v-if="currentStep === 1" class="space-y-4 animate-fade-in">
           <p class="text-sm text-gray-600 text-center mb-4">กรุณากรอกอีเมลของคุณเพื่อรับรหัส OTP</p>
           <div class="space-y-2">
@@ -38,23 +36,10 @@
           </div>
         </div>
 
-        <!-- Step 2: Enter OTP -->
         <div v-else-if="currentStep === 2" class="space-y-4 animate-fade-in">
           <p class="text-sm text-gray-600 text-center mb-2">รหัส OTP ถูกส่งไปที่อีเมลของคุณแล้ว</p>
           <p class="text-xs text-gray-500 text-center mb-4">กรุณาตรวจสอบอีเมลและกรอกรหัส OTP พร้อม Ref Code</p>
           
-          <!-- <div class="space-y-2">
-            <label class="block text-[14px] text-black pl-1">Ref Code</label>
-            <input 
-              v-model="refCode" 
-              type="text" 
-              placeholder="XXXXXXXX"
-              maxlength="8"
-              class="w-full h-12 px-4 rounded-[15px] border border-[#858080] focus:border-[#4F39F6] outline-none uppercase" 
-              required 
-            />
-          </div> -->
-
           <div class="space-y-2">
             <label class="block text-[14px] text-black pl-1">รหัส OTP (6 หลัก)</label>
             <input 
@@ -82,7 +67,6 @@
           </button>
         </div>
 
-        <!-- Step 3: Enter New Password -->
         <div v-else-if="currentStep === 3" class="space-y-4 animate-fade-in">
           <p class="text-sm text-gray-600 text-center mb-4">ตั้งรหัสผ่านใหม่</p>
           
@@ -113,26 +97,22 @@
           </div>
         </div>
 
-        <!-- Error Message -->
         <div v-if="errorMessage" class="text-red-500 text-sm text-center bg-red-50 p-3 rounded-lg">
           {{ errorMessage }}
         </div>
 
-        <!-- Success Message -->
         <div v-if="successMessage" class="text-green-600 text-sm text-center bg-green-50 p-3 rounded-lg">
           {{ successMessage }}
         </div>
 
-        <!-- Submit Button -->
         <button 
           type="submit" 
           :disabled="isLoading || (currentStep === 3 && newPassword !== confirmPassword)"
-          class="w-full h-[49px] bg-[#4F39F6] text-white text-[20px] font-bold rounded-[15px] hover:bg-[#3d2bd6] transition-colors mt-8 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          class="w-full h-12.25 bg-[#4F39F6] text-white text-[20px] font-bold rounded-[15px] hover:bg-[#3d2bd6] transition-colors mt-8 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {{ getButtonText() }}
         </button>
 
-        <!-- Back to Login -->
         <div class="text-center pt-4">
           <router-link to="/login" class="text-sm text-[#4F39F6] hover:text-[#3d2bd6] transition-colors">
             กลับไปหน้าเข้าสู่ระบบ
@@ -150,14 +130,12 @@ import { sendOTP, verifyOTP, resetPassword } from '@/services/webAdminService';
 
 const router = useRouter();
 
-// Form data
 const email = ref('');
 const otp = ref('');
 const refCode = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
-// UI state
 const currentStep = ref(1);
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -224,7 +202,6 @@ const handleSendOTP = async () => {
       console.log('Ref Code received:', refCode.value);
     }
     
-    // Clear success message after 3 seconds
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);
@@ -259,7 +236,7 @@ const handleVerifyOTP = async () => {
   } catch (error: any) {
     console.error('Verify OTP Failed:', error);
     errorMessage.value = error.response?.data?.message || 'รหัส OTP หรือ Ref Code ไม่ถูกต้อง';
-    otp.value = ''; // Clear OTP for retry
+    otp.value = ''; 
   } finally {
     isLoading.value = false;
   }
@@ -292,7 +269,6 @@ const handleResetPassword = async () => {
     const errorData = error.response?.data;
     errorMessage.value = errorData?.message || 'ไม่สามารถเปลี่ยนรหัสผ่านได้';
     
-    // If OTP expired or already used, go back to step 1
     if (errorData?.message?.includes('expired') || errorData?.message?.includes('already been used')) {
       setTimeout(() => {
         currentStep.value = 1;
@@ -363,7 +339,6 @@ const resetForm = () => {
   countdown.value = 0;
 };
 
-// Cleanup on component unmount
 onUnmounted(() => {
   if (countdownInterval) {
     clearInterval(countdownInterval);
@@ -387,7 +362,6 @@ onUnmounted(() => {
   animation: fade-in 0.3s ease-out;
 }
 
-/* Remove number input arrows */
 input[type="text"]::-webkit-outer-spin-button,
 input[type="text"]::-webkit-inner-spin-button {
   -webkit-appearance: none;

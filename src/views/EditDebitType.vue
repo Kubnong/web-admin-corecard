@@ -140,15 +140,6 @@
               />
               <span class="text-sm text-gray-700">Virtual</span>
             </label>
-            <!-- <label class="flex items-center gap-2 cursor-pointer">
-              <input 
-                type="radio" 
-                v-model="formData.can_physical" 
-                :value="true"
-                class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
-              />
-              <span class="text-sm text-gray-700">Physical</span>
-            </label> -->
           </div>
         </div>
 
@@ -271,9 +262,8 @@ import Swal from 'sweetalert2';
 
 const router = useRouter();
 
-// Structure เดียวกับหน้า Add แต่เพิ่ม field 'type_debit_id'
 interface DebitTypeForm {
-  type_debit_id: string; // สำคัญสำหรับหน้า Edit
+  type_debit_id: string;
   type_debit_image: string;
   type_debit_name: string;
   type_debit_description: string;
@@ -287,7 +277,6 @@ interface DebitTypeForm {
   images: string[]; 
 }
 
-// Initial Data
 const formData = ref<DebitTypeForm>({
   type_debit_id: '',
   type_debit_image: '',
@@ -300,7 +289,7 @@ const formData = ref<DebitTypeForm>({
   default_limit: 0,
   max_limit: 0,
   expiry_year: 3,
-  images: ['', '', ''] // ใช้สำหรับแสดงผล Preview ใน UI
+  images: ['', '', '']
 });
 
 const isSubmitting = ref(false);
@@ -322,7 +311,6 @@ const loadBase64Image = async (fileName: string) => {
   }
 };
 
-// --- 1. Fetch Data Logic ---
 const fetchData = async () => {
     const typeId = history.state.type_debit_id;
 
@@ -334,15 +322,13 @@ const fetchData = async () => {
 
     try {
         isLoadingData.value = true;
-        // เรียก API ดึงข้อมูล
         const response = await getTypeDebitById({ type_debit_id: typeId });
         
         if (response.data) {
             const data = response.data;
-            // Map ข้อมูลเข้า FormData
             formData.value = { 
                 ...data,
-                images: ['', '', ''] // Reset images array
+                images: ['', '', ''] 
             };
             if (data.image_small) {
                 formData.value.images[0] = await loadBase64Image(data.image_small);
@@ -368,13 +354,11 @@ onMounted(() => {
     fetchData();
 });
 
-// --- 2. Image Handling Logic (เหมือน AddDebitType) ---
 const handleImageUpload = (event: Event, index: number) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   
   if (file) {
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       errorMessage.value = 'ขนาดไฟล์ต้องไม่เกิน 5MB';
       setTimeout(() => errorMessage.value = '', 3000);
@@ -384,12 +368,9 @@ const handleImageUpload = (event: Event, index: number) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
-      // 1. อัปเดตเพื่อแสดงผล Preview
       formData.value.images[index] = result;
       
-      // 2. ถ้าเป็นรูปหลัก (index 0) ให้เตรียมข้อมูลสำหรับส่งไป Backend
       if (index === 0) {
-        // ตัด Data URI scheme ออก (ส่งเฉพาะ Base64 เพียวๆ)
         formData.value.type_debit_image = (result.split(',')[1] || result);
       }
     };
@@ -400,14 +381,12 @@ const handleImageUpload = (event: Event, index: number) => {
   }
 };
 
-// --- 3. Submit Logic (เหมือน AddDebitType แต่เปลี่ยน API) ---
 const handleSubmit = async () => {
   isSubmitting.value = true;
   errorMessage.value = '';
   successMessage.value = '';
 
   try {
-    // Validation Logic (เหมือนหน้า Add)
     if (formData.value.min_limit > formData.value.default_limit) {
       throw new Error('วงเงินขั้นต่ำต้องไม่มากกว่าวงเงินเริ่มต้น');
     }
@@ -415,16 +394,13 @@ const handleSubmit = async () => {
       throw new Error('วงเงินเริ่มต้นต้องไม่มากกว่าวงเงินสูงสุด');
     }
 
-    // เตรียม Payload สำหรับส่งไป Update
-    // ต้องระวังเรื่องรูป: ถ้า user ไม่ได้อัปรูปใหม่ ค่าใน type_debit_image จะเป็นค่าเดิมจาก fetch
-    // ซึ่งถ้าค่าเดิมมี prefix "data:image..." ติดมาต้องเอาออกก่อน หรือถ้าเป็น base64 เพียวๆ ก็ส่งได้เลย
     let finalImage = formData.value.type_debit_image;
     if (finalImage.startsWith('data:image')) {
          finalImage = finalImage.split(',')[1] || finalImage;
     }
 
     const payload = {
-      type_debit_id: formData.value.type_debit_id, // *สำคัญ* ต้องส่ง ID ไปด้วย
+      type_debit_id: formData.value.type_debit_id, 
       type_debit_image: finalImage,
       type_debit_name: formData.value.type_debit_name,
       type_debit_description: formData.value.type_debit_description,
@@ -437,7 +413,6 @@ const handleSubmit = async () => {
       expiry_year: formData.value.expiry_year,
     };
 
-    // เรียก API Update แทน Add
     await updateDebitType(payload);
 
     successMessage.value = 'แก้ไขข้อมูลสำเร็จ! กำลังกลับไปหน้าหลัก...';

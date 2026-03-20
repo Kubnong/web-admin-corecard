@@ -382,7 +382,6 @@ const validation = ref({
   ou: false,
 });
 
-// 🌟 ตัวแปรสำหรับ Edit Modal
 const showEditModal = ref(false);
 const isEditing = ref(false);
 const editFormData = ref({
@@ -428,24 +427,19 @@ const downloadCertificate = (cert: any) => {
   }
 
   try {
-    // 2. สร้าง Blob จากข้อมูล PEM ของแถวนั้นๆ
     const blob = new Blob([cert.certificate_pem], {
       type: "application/x-x509-ca-cert",
     });
     const url = URL.createObjectURL(blob);
 
-    // 3. สร้างชื่อไฟล์ให้สื่อความหมาย (เช่น client-1234.crt)
-    // หรือจะใช้ cert.subject_dn มาตัดคำก็ได้
     const fileName = `client-${cert.certificate_id.substring(0, 8)}.crt`;
 
-    // 4. สร้าง Link ล่องหนเพื่อกดโหลด
     const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
 
-    // 5. เก็บกวาด Memory
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (error) {
@@ -481,17 +475,14 @@ const onFileChange = async (event: Event) => {
     )?.value as string;
 
     if (client.value) {
-      // 1. Check CN contains Client ID
       if (cnVal && cnVal.includes(client.value.client_id)) {
         validation.value.cn = true;
       }
 
-      // 2. Check Organization (O) matches DB organization_name
       if (oVal && oVal === client.value.client_name) {
         validation.value.org = true;
       }
 
-      // 3. Check Org Unit (OU) matches DB client_name
       if (ouVal && ouVal === client.value.organization_name) {
         validation.value.ou = true;
       }
@@ -516,19 +507,16 @@ const submitUpload = async () => {
   isUploading.value = true;
 
   try {
-    // เตรียมข้อมูลในรูปแบบ FormData
     const formData = new FormData();
     formData.append("file", selectedFile.value as File);
     formData.append("environment", env.value);
-    // ใช้ clientId เพื่อให้สอดคล้องกับ DTO ของ Java
     formData.append("clientId", client.value.client_id);
 
-    // ยิง API ผ่าน Service ที่ export ไว้
     await uploadCsr(formData);
 
     alert("Certificate Issued Successfully");
     closeModal();
-    fetchData(); // รีเฟรชข้อมูลในหน้าจอ
+    fetchData();
   } catch (e: any) {
     const msg = e.response?.data?.message || "Failed to upload CSR";
     alert(msg);
@@ -537,11 +525,9 @@ const submitUpload = async () => {
   }
 };
 
-// 🌟 ฟังก์ชันเปิด Edit Modal พร้อมใส่ข้อมูลเดิมลงช่อง
 const openEditModal = () => {
   if (client.value) {
     editFormData.value.description = client.value.description || "";
-    // แตก String เป็น Array ถ้ามี scope เดิมอยู่ Checkbox จะถูกติ๊กอัตโนมัติ
     editFormData.value.selectedScopes = client.value.scope
       ? client.value.scope.split(" ")
       : [];
@@ -561,7 +547,6 @@ const submitEditClient = async () => {
     const payload = {
       client_id: client.value.client_id,
       description: editFormData.value.description,
-      // แปลง Array กลับเป็น String
       scope: editFormData.value.selectedScopes.join(" "),
     };
 
@@ -569,7 +554,7 @@ const submitEditClient = async () => {
 
     alert("Client updated successfully");
     closeEditModal();
-    await fetchData(); // โหลดข้อมูลใหม่เพื่ออัปเดตหน้าจอ
+    await fetchData(); 
   } catch (e: any) {
     alert(e.response?.data?.message || "Failed to update client");
   } finally {

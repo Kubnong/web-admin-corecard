@@ -3,13 +3,11 @@
     <div class="min-h-screen bg-gray-50">
       <div class="p-8">
 
-        <!-- Header -->
         <div class="mb-8 flex justify-between items-center">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 mb-1">Physical Card Tracking</h1>
             <p class="text-sm text-gray-500">จัดการสถานะการจัดส่งบัตรเดบิต Physical</p>
           </div>
-          <!-- Summary Badges -->
           <div class="flex gap-3">
             <span class="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
               Pending: {{ countByStatus('pending') }}
@@ -23,7 +21,6 @@
           </div>
         </div>
 
-        <!-- Filter Bar -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6 flex gap-4 items-center">
           <div class="flex-1 relative">
             <input
@@ -56,7 +53,6 @@
           </button>
         </div>
 
-        <!-- Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div v-if="isLoading" class="flex justify-center items-center py-20">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
@@ -126,7 +122,6 @@
       </div>
     </div>
 
-    <!-- Toast Notification -->
     <transition name="toast">
       <div
         v-if="toast.show"
@@ -201,7 +196,6 @@ const handleStatusChange = async (item: TrackingItem) => {
   } catch (error: any) {
     console.error('Error updating status:', error);
     showToast(error.response?.data?.message || 'อัปเดตสถานะไม่สำเร็จ', 'error');
-    // revert by refetch
     await fetchTrackingData();
   } finally {
     updatingId.value = null;

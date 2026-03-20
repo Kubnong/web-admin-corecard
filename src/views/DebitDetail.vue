@@ -2,10 +2,10 @@
   <MainLayout>
     <div class="flex flex-col lg:flex-row gap-8 mb-10">
       <div
-        class="w-full lg:w-[400px] h-[240px] rounded-2xl text-white p-6 relative shadow-xl flex flex-col justify-between overflow-hidden"
+        class="w-full lg:w-100 h-60 rounded-2xl text-white p-6 relative shadow-xl flex flex-col justify-between overflow-hidden"
         :class="
           !cardImageBase64
-            ? 'bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800'
+            ? 'bg-linear-to-br from-blue-700 via-blue-600 to-indigo-800'
             : 'bg-gray-900'
         "
       >
@@ -23,9 +23,7 @@
         ></div>
 
         <div class="flex justify-between items-start z-10">
-          <div class="text-2xl font-bold italic opacity-80">
-            N<span class="text-sm not-italic align-top">★</span>
-          </div>
+
         </div>
 
         <div class="z-10 mt-4">
@@ -222,24 +220,19 @@ const fetchCardDetail = async () => {
 
 const fetchCardImage = async (typeDebitId: string) => {
   try {
-    // 1. ค้นหาข้อมูลชนิดบัตรทั้งหมด
     const typesRes = await getTypeDebits();
 
-    // 2. เอา type_debit_id ไปค้นหาชนิดบัตรที่ตรงกัน
     const matchedType = typesRes.data.find(
       (t: any) =>
         t.type_debit_id === typeDebitId || t.typeDebitId === typeDebitId,
     );
 
-    // 🚨 3. ดึงเฉพาะชื่อไฟล์จากฟิลด์ image_large (เช็คเผื่อกรณี Backend ส่งมาเป็น camelCase)
     const imageLargeFileName =
       matchedType?.image_large || matchedType?.imageLarge;
 
-    // 🚨 4. ถ้ามีชื่อไฟล์ image_large ค่อยเอามันไปค้นหา Base64
     if (imageLargeFileName) {
       const imgRes = await getImage({ fileName: imageLargeFileName });
 
-      // ประกอบ Data URI แล้วนำไปแสดงผล
       cardImageBase64.value = `data:image/png;base64,${imgRes.data.imageBase64}`;
     } else {
       console.warn(`ไม่พบไฟล์ image_large สำหรับชนิดบัตร ID: ${typeDebitId}`);

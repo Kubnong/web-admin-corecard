@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { setup2FA, verify2FA } from '@/services/webAdminService'; // ต้องไปเพิ่ม service นี้
+import { setup2FA, verify2FA } from '@/services/webAdminService'; 
 
 const router = useRouter();
 const qrCodeUrl = ref('');
@@ -59,7 +59,7 @@ const otpCode = ref('');
 const isLoadingQR = ref(true);
 const isVerifying = ref(false);
 const errorMessage = ref('');
-const tempToken = sessionStorage.getItem('temp_token'); // รับค่าจากหน้า Login
+const tempToken = sessionStorage.getItem('temp_token'); 
 
 onMounted(async () => {
     if (!tempToken) {
@@ -69,7 +69,6 @@ onMounted(async () => {
     }
 
     try {
-        // ยิง API ไปขอ QR Code
         const response = await setup2FA({ temp_token: tempToken });
         console.log(response.data.qr_code)
         qrCodeUrl.value = response.data.qr_code;
@@ -87,15 +86,14 @@ const handleVerifySetup = async () => {
     errorMessage.value = '';
 
     try {
-        // ยิง API ยืนยันว่า Setup สำเร็จ
         await verify2FA({
             temp_token: tempToken!,
             totp_code: parseInt(otpCode.value)
         });
 
         alert('ตั้งค่า 2FA สำเร็จ! กรุณาเข้าสู่ระบบอีกครั้ง');
-        sessionStorage.removeItem('temp_token'); // เคลียร์ token ชั่วคราว
-        router.replace('/login'); // กลับไปหน้า Login เพื่อเริ่ม Flow จริง
+        sessionStorage.removeItem('temp_token'); 
+        router.replace('/login'); 
 
     } catch (error: any) {
         errorMessage.value = error.response?.data?.message || 'รหัส OTP ไม่ถูกต้อง';

@@ -1,19 +1,15 @@
 import axios, { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { generateKeyPair, exportJWK, compactDecrypt, importSPKI, CompactEncrypt } from 'jose'
 
-// ─── Type augmentation ────────────────────────────────────────────────────────
 declare module 'axios' {
     export interface InternalAxiosRequestConfig {
         _retry?: boolean
-        _privateKey?: CryptoKey  // ✅ เปลี่ยนเป็น CryptoKey
+        _privateKey?: CryptoKey  
     }
 }
 
 const apiEndpoint = import.meta.env.VITE_API_BASE_URL
 
-// ─── Session Key Pair (สร้างครั้งเดียวตลอด Session) ──────────────────────────
-// Public Key → ส่งไปทุก Request ให้ Backend เอาไป Encrypt Response กลับมา
-// Private Key → เก็บใน RAM เพื่อถอดรหัส Response
 let sessionKeys: { publicKeyJwk: string; privateKey: CryptoKey } | null = null
 
 const getSessionKeys = async () => {
@@ -23,8 +19,6 @@ const getSessionKeys = async () => {
     return sessionKeys
 }
 
-// ─── Backend Static Public Key (สำหรับ Encrypt ขาไป) ─────────────────────────
-// ค่าใน .env: VITE_BACKEND_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"
 let backendPublicKey: CryptoKey | null = null
 
 const getBackendPublicKey = async (): Promise<CryptoKey> => {
@@ -35,56 +29,46 @@ const getBackendPublicKey = async (): Promise<CryptoKey> => {
     return backendPublicKey
 }
 
-// ─── Auth endpoints ที่ไม่เข้ารหัส ───────────────────────────────────────────
 const isAuthPath = (url?: string) =>
     ['/web/auth/authorize', '/web/auth/token', '/web/auth/refresh',
      '/web/auth/2fa/', '/web/auth/send-otp', '/web/auth/verify-otp',
      '/web/auth/reset-password']
     .some(p => url?.includes(p))
 
-// ─── Axios Instance ───────────────────────────────────────────────────────────
 const api = axios.create({
     baseURL: apiEndpoint,
     headers: { 'Content-Type': 'application/json' },
     timeout: 10000,
 })
 
-// ─── Request Interceptor ──────────────────────────────────────────────────────
 api.interceptors.request.use(async (config) => {
     const token = localStorage.getItem('accessToken')
     if (token) config.headers.Authorization = `Bearer ${token}`
 
-    // if (isAuthPath(config.url)) return config
-
-    // แนบ Ephemeral Public Key → Backend จะเอาไป Encrypt Response
     const keys = await getSessionKeys()
     config.headers['X-Client-Public-Key'] = keys.publicKeyJwk
     config._privateKey = keys.privateKey
 
-    // Encrypt Request Body ด้วย Backend Static Public Key
     if (config.data) {
         if (config.data instanceof FormData) {
-            // 🌟 1. ถ้าเป็นไฟล์ (FormData) ให้ลบ Content-Type ทิ้ง! 
-            // เพื่อให้เบราว์เซอร์จัดการใส่ multipart/form-data; boundary=... ให้อัตโนมัติ
             delete config.headers['Content-Type'];
-        } else {
-            // 🌟 2. ถ้าเป็น JSON ปกติ ให้เข้ารหัสเป็น JWE ตามมาตรฐาน E2EE
-            const backendKey = await getBackendPublicKey()
-            const jwe = await new CompactEncrypt(
-                new TextEncoder().encode(JSON.stringify(config.data))
-            )
-                .setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' })
-                .encrypt(backendKey)
+            return config;
+        } 
+        
+        const backendKey = await getBackendPublicKey()
+        const jwe = await new CompactEncrypt(
+            new TextEncoder().encode(JSON.stringify(config.data))
+        )
+            .setProtectedHeader({ alg: 'RSA-OAEP-256', enc: 'A256GCM' })
+            .encrypt(backendKey)
 
-            config.data = jwe
-            config.headers['Content-Type'] = 'text/plain'
-        }
+        config.data = jwe
+        config.headers['Content-Type'] = 'text/plain'
     }
 
     return config
 })
 
-// ─── Queue สำหรับ Refresh Token ───────────────────────────────────────────────
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (v?: unknown) => void; reject: (r?: unknown) => void }> = []
 
@@ -93,17 +77,15 @@ const processQueue = (error: unknown, token: string | null = null) => {
     failedQueue = []
 }
 
-// ─── Response Interceptor ─────────────────────────────────────────────────────
 api.interceptors.response.use(
     async (response: AxiosResponse) => {
         const config = response.config as InternalAxiosRequestConfig
 
-        // ถอดรหัส JWE Response อัตโนมัติ
         if (config._privateKey && typeof response.data === 'string' && response.data.startsWith('eyJ')) {
             try {
                 const { plaintext } = await compactDecrypt(response.data, config._privateKey)
                 response.data = JSON.parse(new TextDecoder().decode(plaintext))
-            } catch {
+            } catch (e) {
                 return Promise.reject(new Error('Response decryption failed'))
             }
         }
@@ -112,6 +94,15 @@ api.interceptors.response.use(
 
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig
+
+        if (error.response && originalRequest._privateKey && typeof error.response.data === 'string' && error.response.data.startsWith('eyJ')) {
+            try {
+                const { plaintext } = await compactDecrypt(error.response.data, originalRequest._privateKey)
+                error.response.data = JSON.parse(new TextDecoder().decode(plaintext))
+            } catch (decryptionError) {
+                console.error('Error response decryption failed:', decryptionError)
+            }
+        }
 
         if (
             error.response &&
@@ -135,7 +126,6 @@ api.interceptors.response.use(
                 const refreshToken = localStorage.getItem('refreshToken')
                 if (!refreshToken) throw new Error('No refresh token')
 
-                // ใช้ axios ตรง (ไม่ผ่าน instance) เพื่อหลีกเลี่ยง interceptor loop
                 const res = await api.post('/web/auth/refresh', {
                     refresh_token: refreshToken,
                 })

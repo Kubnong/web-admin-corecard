@@ -59,17 +59,16 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { authorize, getToken } from '@/services/webAdminService';
-import { generateCodeVerifier, generateCodeChallenge, randomString } from '@/utils/security'; // เช็คชื่อไฟล์ utils ดีๆ นะครับ
+import { generateCodeVerifier, generateCodeChallenge, randomString } from '@/utils/security';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
-const otpCode = ref(''); // เพิ่มตัวแปรเก็บ OTP
-const showOtpInput = ref(false); // เพิ่มตัวแปรคุมการแสดงผล
+const otpCode = ref(''); 
+const showOtpInput = ref(false); 
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-// เก็บ PKCE ไว้ใช้ต่อเนื่อง (เพราะต้องใช้ code_verifier เดิมตอนแลก Token)
 let codeVerifier = '';
 let savedState = '';
 let savedNonce = '';
@@ -99,7 +98,6 @@ const handleLoginFlow = async () => {
     errorMessage.value = '';
 
     try {
-        // สร้าง PKCE ใหม่เฉพาะตอนเริ่ม Flow แรก (ยังไม่มี OTP)
         if (!showOtpInput.value) {
             codeVerifier = generateCodeVerifier();
             savedState = randomString(16);
@@ -108,7 +106,6 @@ const handleLoginFlow = async () => {
         
         const codeChallenge = generateCodeChallenge(codeVerifier);
 
-        // Prepare Payload
         const payload: any = {
             email: email.value,
             password: password.value,
@@ -117,7 +114,6 @@ const handleLoginFlow = async () => {
             nonce: savedNonce
         };
 
-        // ถ้ามี OTP ให้แนบไปด้วย (รอบที่ 2)
         if (showOtpInput.value && otpCode.value) {
             payload.totp_code = parseInt(otpCode.value);
         }
@@ -135,7 +131,6 @@ const handleLoginFlow = async () => {
             throw new Error("ไม่ได้รับ Authorization Code");
         }
 
-        // --- STEP 2: Exchange Token ---
         const tokenResponse = await getToken({
             auth_code: authCode,
             code_verify: codeVerifier
@@ -159,25 +154,22 @@ const handleLoginFlow = async () => {
         console.error('Login Failed:', error);
         const errorData = error.response?.data;
 
-        // 🟢 Case 1: ยังไม่เคยทำ 2FA -> ไปหน้า Setup
         if (errorData?.error === 'mfa_setup_required') {
              sessionStorage.setItem('temp_token', errorData.temp_token);
              router.push('/setup2fa'); 
              return;
         } 
         
-        // 🟡 Case 2: ต้องกรอก OTP -> เปิดช่องกรอก
         else if (errorData?.error === 'totp_required') {
              showOtpInput.value = true;
-             errorMessage.value = ''; // เคลียร์ Error เดิม (ถ้ามี)
-             otpCode.value = ''; // เคลียร์ช่องให้พร้อมกรอก
+             errorMessage.value = ''; 
+             otpCode.value = ''; 
         } 
         
-        // 🔴 Case 3: Error จริงๆ (รหัสผิด / OTP ผิด)
         else {
              errorMessage.value = errorData?.message || 'เข้าสู่ระบบไม่สำเร็จ';
              if (showOtpInput.value) {
-                 otpCode.value = ''; // ถ้า OTP ผิด ให้ลบรอพิมพ์ใหม่
+                 otpCode.value = ''; 
              }
         }
     } finally {

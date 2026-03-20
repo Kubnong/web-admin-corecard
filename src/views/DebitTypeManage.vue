@@ -40,7 +40,7 @@
               />
               <div
                 v-else
-                class="w-16 h-10 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md shadow-sm flex items-center justify-center text-white text-[10px] font-bold"
+                class="w-16 h-10 bg-linear-to-r from-blue-500 to-indigo-600 rounded-md shadow-sm flex items-center justify-center text-white text-[10px] font-bold"
               >
                 No Image
               </div>
@@ -246,7 +246,7 @@ const fetchTypeDebitsData = async () => {
     const response = await getTypeDebits();
     const data = response.data; 
 
-    // 🚨 นำข้อมูลมาวนลูปเพื่อดึงรูปภาพ Base64 ทีละรายการ
+    // นำข้อมูลมาวนลูปเพื่อดึงรูปภาพ Base64 ทีละรายการ
     const enhancedData = await Promise.all(
       data.map(async (item: any) => {
         // ถ้ามีชื่อไฟล์ส่งมา
@@ -274,7 +274,6 @@ const fetchTypeDebitsData = async () => {
 };
 
 const goToDebitTypeDetail = (type_debit_id: string) => {
-  // ส่งข้อมูล item ทั้งก้อนไปหน้า Edit ผ่าน state
   router.push({ 
     path: 'edit-debit-type', 
     state: { type_debit_id: type_debit_id } 
